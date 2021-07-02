@@ -1,0 +1,718 @@
+---
+title: |
+   ![](covid19.jfif){width=550px style="display: block; margin:0 auto"}  
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections : true
+    toc_depth: 2
+    toc_float: true 
+    theme: readable
+    highlight: tango
+runtime: shiny
+---
+
+
+```{r setup, include=FALSE}
+### Load Libraries
+knitr::opts_chunk$set(echo = TRUE)
+library(DT)
+library(flexdashboard)
+library(shinydashboard)
+library(shiny)
+library(knitr)
+library(kableExtra)
+library(coin)
+library(tidyverse)
+library(ggcorrplot)
+library(ggpubr)
+library(rstatix)
+library(lubridate)
+library("readxl")
+library(ggpubr)
+library(cowplot)
+library(emojifont)
+library(grid)
+library(performance)
+library(remotes)
+library(plotly)
+library("see")
+library(tidytext)
+library(glue) #for pasting strings
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(maps)
+library(plotly)
+library(forcats)
+library(caTools)
+
+```
+
+# **Effect of COVID-19 Induced Lockdown on Mental Wellbeing of Students Attending Online Classes ** {-} 
+
+**By:**
+
+ * Ammar Ateeq
+ * Muhammad Hashim Naveed
+ * Sidra Aziz
+ 
+```{r dataset, include=FALSE}
+options(max.print=1000000)
+
+### Load Datasets
+
+#Datasets
+df_data = read_excel('A Short Survey About Online Studies And Its Effects (Responses).xlsx')
+```
+
+
+
+# **Related Works**
+
+
+# **Motivation & Overview**
+
+
+
+# **Data**
+
+## **Data Cleaning & Manipulation**
+```{r data_manipulation, include=FALSE}
+
+# change column names to a more understandable variable that are recieved from the form
+df_data = df_data %>% 
+  rename(
+    age = `What is your age?`,
+    country = `Which country are you from?`,
+    study_in_germany = `Do you study in Germany?`,
+    country_study = `Which country were you in while taking online classes?`,
+    living_setup = `What is your living setup?`,
+    motivation = `Were you motivated to take online classes as compared to regular classes?`,
+    motivation_reason = `Please give reason for your previous question's answer below:`,
+    concentration = `How has been your concentration span during online studies vs. in-person classes/lectures?`,
+    concentration_reason = `Please share some thoughts or explanation on the concentration span in online studies.`,
+    sleep = `Has your sleep been affected during online classes?`,
+    sleep_reason = `Please share some thoughts on how has your sleep been affected during online classes if you marked previous question as 'yes':`,
+    education_strain = `From 1 being lowest and 5 the highest, how much are you in constant strain around the time of assignment submissions, projects, exams or classes in online setting?`,
+    graduation_effect = `Did the online class setting effect your graduation timeline or plans?`,
+    graduation_effect_reason = `If your answer is 'yes' to previous question, would you like to take a few seconds and describe to us how has it impacted your graduation timeline or future plans?`,
+    feeling_unhappiniess = `From scale of 1 to 5 where 1 being the lowest and 5 being the highest, how much has the feeling of unhappiness or anxiety been felt by you during your online classes in COVID-19 situation?`,
+    feeling_unhappiness_reason = `Would you like to share your thoughts on what has been the cause of anxiety or worry during this time for you?`,
+    insititute_assistance = `How was the assistance from your Institute during COVID-19 when it comes to getting comfortable in online-class decorum? 1 being 'least assistive' to 5 being 'most assistive'.`,
+    internet = `Has the internet connection affected you during online classes or online exams?`,
+    internet_reason = `If you answered 'yes' to previous question, can you please share thoughts on what kind of effects have you experienced due to poor internet connection?`,
+    job_lost = `Did you lose your job due to Covid-19 pendemic?`,
+    full_courses_taken = `Were you able to take all the courses that you wanted?`,
+    full_courses_taken_reason = `If your answer is 'no' to previous question, what were your immediate thoughts when you were unable to take all the courses in due time?`,
+    stranded_outside = `Were you stranded outside your country of education?`,
+    stranded_outside_cope = `If your answer is 'yes' to previous question, how did you cope with online studies at that time?`,
+    financial_problem = `Did you have financial problem due to COVID-19?`,
+    financial_problem_affect = `If your answer is 'yes' to the question above, how do you think it affected your studies?`,
+    results_better = `Did you get better results in online-exam setting where you could take the exam in premise of your own home?`,
+    additional_notes = `Please share any thoughts in addition that you feel were not addressed in above questions.`
+  ) 
+
+# delete columns 1 & 2
+df_data <- df_data[, -c(1:2)]
+
+# columns to be changed from character to factor
+cols.char <- c("motivation", "living_setup","concentration","sleep","education_strain","graduation_effect",
+              "feeling_unhappiniess","insititute_assistance","internet","job_lost","full_courses_taken","stranded_outside",
+              "financial_problem","results_better") 
+
+# change character to factors for chosen columns
+df_data[cols.char] <- lapply(df_data[cols.char], factor)
+
+
+```
+
+```{r encode_variables,warning=FALSE, message=FALSE, echo=FALSE}
+
+df_data$motivation_temp = factor(df_data$motivation,
+levels = c('Yes','Maybe','No'),
+labels = c(0,2,1))
+
+df_data$concentration_temp = factor(df_data$concentration,
+levels = c('Good','Same','Bad'),
+labels = c(0,2,1))
+
+df_data$sleep_temp = factor(df_data$sleep,
+levels = c('No','Yes'),
+labels = c(0,1))
+
+df_data$education_strain_temp = factor(df_data$education_strain,
+levels = c(5,4,3,2,1),
+labels = c(4,3,2,1,0))
+
+df_data$graduation_effect_temp = factor(df_data$graduation_effect,
+levels = c('No','Yes'),
+labels = c(0,1))
+
+df_data$feeling_unhappiniess_temp = factor(df_data$feeling_unhappiniess,
+levels = c(5,4,3,2,1),
+labels = c(0,1,2,3,4))
+
+df_data$insititute_assistance_temp = factor(df_data$insititute_assistance,
+levels = c(1,2,3,4,5),
+labels = c(4,3,2,1,0))
+
+df_data$internet_temp = factor(df_data$internet,
+levels = c('No','Maybe','Yes'),
+labels = c(0,2,1))
+
+df_data$job_lost_temp = factor(df_data$job_lost,
+levels = c('No','Yes'),
+labels = c(0,1))
+
+df_data$full_courses_taken_temp = factor(df_data$full_courses_taken,
+levels = c('Yes','No'),
+labels = c(0,1))
+
+df_data$stranded_outside_temp = factor(df_data$stranded_outside,
+levels = c('No','Yes'),
+labels = c(0,1))
+
+df_data$financial_problem_temp = factor(df_data$financial_problem,
+levels = c('Yes','Maybe', 'No'),
+labels = c(0,2,1))
+
+df_data$results_better_temp = factor(df_data$results_better,
+levels = c('Yes','Maybe', 'No'),
+labels = c(0,2,1))
+
+#df_data_only1_0 = df_data %>% 
+#  select(motivation_temp,concentration_temp,sleep_temp,education_strain_temp,graduation_effect_temp,feeling_unhappiniess_temp,insititute_assistance_temp,internet_temp,job_lost_temp,full_courses_taken_temp,stranded_outside_temp,financial_problem_temp,results_better)
+
+#df_data_only1_0 %>% 
+#  group_by(results_better) %>% 
+#  rowSums(df_data_only1_0 == 0)
+
+
+#colSums(Filter(is.numeric, df_data_only1_0))
+
+
+```
+
+
+## **Overview**
+
+```{r data_overview,warning=FALSE, message=FALSE, echo=FALSE }
+
+study_country_count = df_data %>% 
+  group_by(study_in_germany) %>%
+  mutate(
+   study_in_germany =  factor(study_in_germany,
+levels = c('Yes','No'),
+labels = c('Studying in Germany','Studying outside Germany'))
+  ) %>% 
+  count(sort = TRUE)
+
+plot_study_country <- plot_ly(study_country_count, labels = ~study_in_germany, values = ~n, type = 'pie')
+plot_study_country <- plot_study_country %>% layout(title = 'Pie Chart of Students Studying in Germany',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+plot_study_country
+
+
+
+
+df_age_count = df_data %>% 
+  group_by(age) %>% 
+  count(sort = TRUE)
+
+fig <- df_age_count %>% plot_ly(labels = ~age, values = ~n)
+fig <- fig %>% add_pie(hole = 0.6)
+fig <- fig %>% layout(title = "Age Range Distribution",  showlegend = T,
+                      legend =list(title=list(text='<b> Age Range </b>')),
+                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+fig
+```
+
+## **World Map**
+
+```{r worldmap,warning=FALSE, message=FALSE, include=FALSE }
+
+df_country_count = df_data %>% 
+  group_by(country) %>% 
+  count(sort = TRUE)
+
+df_country_count%>%
+  rename(
+    Country = country,
+    Count = n
+  ) %>% 
+kbl() %>%
+  kable_material_dark("hover", full_width = FALSE)
+
+df_country_count$region <- df_country_count$country
+df_country_count$count_group <- cut(df_country_count$n, 
+                      breaks = c(-Inf, 5, 10, 15,20,25, 30, Inf), 
+                      labels = c("Less than 5", "5-10", "10-15", "15-20","20-25","25-30", "More than 30"))
+
+world_map <- map_data(map = "world")
+
+world_plot = ggplot(df_country_count) +
+  geom_map(aes(map_id = country, fill = fct_rev(count_group)), map = world_map) +
+  geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'black', fill = NA) +
+  expand_limits(x = world_map$long, y = world_map$lat) +
+  scale_fill_manual(name = "Counts", values = rev(brewer.pal(5, name = 'Dark2'))) +
+  theme_void() +
+  coord_fixed()
+```
+
+```{r worldmap_plot, echo=FALSE, fig.width= 12}
+
+renderPlot(world_plot)
+
+```
+
+
+
+```{r frequency_plot,warning=FALSE, message=FALSE, echo=FALSE}
+
+
+df_data %>%
+  ggplot(aes(x = motivation)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Student Motivated For Online Classes",
+    y = "Number of Students",
+    title = "Motivation For Online Classes"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>% 
+  ggplot(aes(x = sleep)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Sleep Disturbed During Online Classes",
+    y = "Number of Students",
+    title = "Sleep Disturbance During Online Classes"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>%
+  ggplot(aes(x = education_strain, fill = education_strain)) +
+  geom_bar() +
+    scale_x_discrete(limits=c("1","2","3","4","5"))+
+  labs(
+    x = "Education Strain During Online Classes",
+    y = "Number of Students",
+    title = "Strain During Online Classes (1: Low, 5: High)"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>% 
+  ggplot(aes(x = graduation_effect)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Graduation Delayed",
+    y = "Number of Students",
+    title = "Plot for Number of Students with Studies Delayed"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+
+df_data %>%
+  ggplot(aes(x = feeling_unhappiniess, fill = feeling_unhappiniess)) +
+  geom_bar() +
+    scale_x_discrete(limits=c("1","2","3","4","5"))+
+  labs(
+    x = "Feeling of Unhappiness",
+    y = "Number of Students",
+    title = "Feeling of Unhappiness During Online Classes (1: Low, 5: High)"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>%
+  ggplot(aes(x = insititute_assistance, fill = insititute_assistance)) +
+  geom_bar() +
+    scale_x_discrete(limits=c("1","2","3","4","5"))+
+  labs(
+    x = "University Assistance",
+    y = "Number of Students",
+    title = "University Assistance To Students (1: Low, 5: High)"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>% 
+  ggplot(aes(x = internet)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Internet Problem",
+    y = "Number of Students",
+    title = "Internet Caused Problem During Online Classes"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>% 
+  ggplot(aes(x = full_courses_taken)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Full Courses Taken",
+    y = "Number of Students",
+    title = "Students Able To Take Full Courses As Wanted"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+df_data %>% 
+  ggplot(aes(x = stranded_outside)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Sleep Disturbance During Online Classes",
+    y = "Number of Students",
+    title = "Number of Students Stranded Outside the Country of Study"
+  ) +
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+
+df_data %>% 
+  ggplot(aes(x = financial_problem)) +
+  geom_bar(fill = "steelblue") + 
+  labs(
+    x = "Financial Problem",
+    y = "Number of Students",
+    title = "Financial Strain Amongst Students"
+  )+
+  theme_bw()+
+  theme(text = element_text(size=18),
+        plot.title = element_text(hjust = 0.5))
+
+
+```
+
+# **Data Modeling**
+
+## **Correlations Between Variables**
+
+```{r correlation_plots,warning=FALSE, message=FALSE, echo=FALSE}
+
+plot1 = df_data %>% 
+  group_by(results_better,concentration) %>%
+  summarise(count = n()) %>% 
+  mutate(rfreq = count/sum(count))
+
+ggplot(plot1, aes(x = results_better, y = concentration,
+                      size = count,
+                      color = results_better))+
+geom_point(alpha = 0.7)+
+scale_size(range = c(0.1, 15), name = "Size Indicator")+
+  labs(
+    x = "Results Better",
+    y = "Concentration",
+    title = "Relationship Between Concentration & Results"
+  )+
+theme_bw()+
+theme(plot.title = element_text(hjust = 0.5))
+
+
+plot2 = df_data %>% 
+  group_by(results_better,motivation) %>%
+  summarise(count = n()) %>% 
+  mutate(rfreq = count/sum(count))
+
+ggplot(plot2, aes(x = results_better, y = motivation,
+                      size = count,
+                      color = count))+
+  geom_point(alpha = 0.7)+
+  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+  labs(
+    x = "Results Better",
+    y = "Motivation",
+    title = "Relationship Between Motivation & Results"
+  )+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+plot3 = df_data %>% 
+  group_by(feeling_unhappiniess,living_setup) %>%
+  summarise(count = n()) %>% 
+  mutate(rfreq = count/sum(count))
+
+ggplot(plot3, aes(x = feeling_unhappiniess, y = living_setup,
+                      size = count,
+                      color = count))+
+  geom_point(alpha = 0.7)+
+  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+  labs(
+    x = "Level of Unhappiness (1:Low, 5:High)",
+    y = "Living Setup",
+    title = "Relationship Between Unhappiness Level & Living Setup"
+  )+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+
+plot4 = df_data %>% 
+  group_by(education_strain,feeling_unhappiniess) %>%
+  summarise(count = n()) %>% 
+  mutate(rfreq = count/sum(count))
+
+ggplot(plot4, aes(x = feeling_unhappiniess, y = education_strain,
+                      size = count,
+                      color = count))+
+  geom_point(alpha = 0.7)+
+  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+  labs(
+    x = "Level of Unhappiness (1:Low, 5:High)",
+    y = "Education Strain (1:Low, 5:High)",
+    title = "Relationship Between Education Strain & Unhappiness Level"
+  )+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+
+plot5 = df_data %>% 
+  group_by(feeling_unhappiniess,job_lost) %>%
+  summarise(count = n()) %>% 
+  mutate(rfreq = count/sum(count))
+
+ggplot(plot5, aes(x = feeling_unhappiniess, y = job_lost,
+                      size = count,
+                      color = count))+
+  geom_point(alpha = 0.7)+
+  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+  labs(
+    x = "Level of Unhappiness (1:Low, 5:High)",
+    y = "Job Lost",
+    title = "Relationship Between Job Lost & Unhappiness Level"
+  )+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+plot6 = df_data %>% 
+  group_by(stranded_outside,feeling_unhappiniess) %>%
+  summarise(count = n()) %>% 
+  mutate(rfreq = count/sum(count))
+
+ggplot(plot6, aes(x = feeling_unhappiniess, y = stranded_outside,
+                      size = count,
+                      color = count))+
+  geom_point(alpha = 0.7)+
+  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+  labs(
+    x = "Level of Unhappiness (1:Low, 5:High)",
+    y = "Standed Outside",
+    title = "Relationship Between Standed Outside Country of Study & Unhappiness Level"
+  )+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+
+## **Logistic Regression**
+
+
+```{r logistic_model,warning=FALSE, message=FALSE, echo=FALSE}
+
+# Fit the model
+model <- glm( results_better ~ concentration + motivation, data = df_data, family = binomial)
+# Summarize the model
+summary(model)
+
+# Do this for every variable with results_better to see there is no bias in any variable
+# small number could potentiall get in the way of finding the best fitting line
+xtabs(~ results_better + concentration_temp, data = df_data)
+xtabs(~ results_better + motivation_temp, data = df_data)
+xtabs(~ results_better + education_strain_temp, data = df_data)
+
+# prediction
+predicted_data = data.frame(probabiliy_of_grade_better = model$fitted.values, results_better = df_data$results_better)
+
+predicted_data = predicted_data[order(predicted_data$probabiliy_of_grade_better, decreasing = FALSE),]
+predicted_data$rank = 1:nrow(predicted_data)
+
+ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better)) +
+  geom_point(aes(color = results_better), alpha=1, shape=4, stroke=2) +
+  xlab("Index") +
+  ylab("Predicted probability of getting better results")
+
+```
+
+## **Chi-Squared Test**
+
+```{r chi_square,warning=FALSE, message=FALSE, echo=FALSE}
+
+TAB = table(df_data$job_lost, df_data$feeling_unhappiniess)
+
+barplot(TAB, beside = T, legend=T)
+
+CHI = chisq.test(TAB, correct = T)
+
+
+#attributes(CHI)
+#CHI$expected
+
+fisher.test(TAB, conf.int = T, conf.level = 0.99)
+
+library("gplots")
+
+balloonplot(t(TAB), main ="df_data", xlab ="", ylab="",
+            label = FALSE, show.margins = FALSE)
+
+```
+
+# **Sentiment Analysis**
+
+## **Word Cloud**
+```{r wordcloud,warning=FALSE, message=FALSE, echo=FALSE}
+
+word_count_func <- function(column_name) {
+  
+  corpus = Corpus(VectorSource(df_data[column_name]))
+  corpus = tm_map(corpus, content_transformer(tolower))
+  corpus = tm_map(corpus, removeNumbers)
+  corpus = tm_map(corpus, removeWords, stopwords("english"))
+  corpus = tm_map(corpus, removePunctuation)
+  corpus = tm_map(corpus, stripWhitespace)
+  
+  tdm = TermDocumentMatrix(corpus)
+  m = as.matrix(tdm)
+  v = sort(rowSums(m), decreasing = TRUE)
+  d = data.frame(word = names(v),freq = v)
+  
+  wordcloud(d$word, d$freq, random.order = FALSE,
+            rot.per = 0.3, scale = c(4,.5),
+            colors = brewer.pal(8,"Dark2"), max.words = 200, min.freq = 2)
+  
+  findFreqTerms(tdm, lowfreq = 2)
+  
+  barplot(d[1:10,]$freq, las = 2, names.arg = d[1:10,]$word,
+          col ="pink", main ="Most frequent words",
+          ylab = "Word frequencies")
+  
+  findAssocs(tdm, terms = c("online","classes","different"), corlimit = 0.10)			
+  # Find associations for words that occur at least 3 times
+  #findAssocs(tdm, terms = findFreqTerms(tdm, lowfreq = 3), corlimit = 0.25)
+}
+
+fluidRow(
+   column(6,
+selectInput(
+  inputId = 'PlotColumn',
+  label = 'Select a variable from the dataset',
+  choices = c('motivation_reason','concentration_reason', 'sleep_reason','graduation_effect_reason','feeling_unhappiness_reason','internet_reason','full_courses_taken_reason', 'stranded_outside_cope','financial_problem_affect','additional_notes')
+)
+)
+)
+```
+
+```{r wordcloud_plot,warning=FALSE, message=FALSE, echo=FALSE}
+renderPlot(word_count_func(input$PlotColumn))
+```
+
+
+```{r sentiment_analysis,warning=FALSE, message=FALSE, echo=FALSE }
+#sentiment function for textual data columns with tokenization using Bing
+# regular sentiment score using get_sentiment() function and method of your choice
+# please note that different methods may have different scales
+#sentiment function for textual data columns with tokenization using Bing
+getSentiment_Func <- function(column_name) {
+  tidy_column <- df_data %>% 
+    unnest_tokens(word, column_name)
+  head(tidy_column)
+  tidy_column %>%
+    inner_join(get_sentiments("bing")) %>% # pull out only sentiment words
+    count(sentiment) %>% # count the # of positive & negative words
+    spread(sentiment, n, fill = 0) %>% # made data wide rather than narrow
+    mutate(columnName = column_name,
+           sentiment = positive - negative) # # of positive words - # of negative words
+}
+
+Motivation_sentiment <- getSentiment_Func("motivation_reason")
+Concentration_sentiment <- getSentiment_Func("concentration_reason")
+Sleep_sentiment <- getSentiment_Func("sleep_reason")
+Graduation_sentiment <- getSentiment_Func("graduation_effect_reason")
+Unhappiness_sentiment <- getSentiment_Func("feeling_unhappiness_reason")
+Internet_sentiment <- getSentiment_Func("internet_reason")
+FullCoursesTaken_sentiment <- getSentiment_Func("full_courses_taken_reason")
+Stranded_sentiment <- getSentiment_Func("stranded_outside_cope")
+Financialprob_sentiment <- getSentiment_Func("financial_problem_affect")
+AdditionalNotes_sentiment <- getSentiment_Func("additional_notes")
+
+df_sentiment = Reduce(function(x, y) merge(x, y, all=TRUE), list(
+  Motivation_sentiment, Concentration_sentiment, Sleep_sentiment, Graduation_sentiment,
+  Unhappiness_sentiment,FullCoursesTaken_sentiment,Stranded_sentiment,Financialprob_sentiment,
+  AdditionalNotes_sentiment))
+
+
+#Most common positive and negative words and 
+#positive vs. negative sentiments word cloud together
+getPosNegcount_Func <- function(column_name) {
+  tidy_column <- df_data %>%
+    unnest_tokens(word, column_name)
+  
+  bing_word_counts <- tidy_column %>%
+    inner_join(get_sentiments("bing")) %>%
+    count(word, sentiment, sort = TRUE) %>%
+    ungroup()
+  
+  library("reshape2")
+  tidy_column %>% 
+    inner_join(get_sentiments("bing"), "word") %>%
+    count(word, sentiment, sort = TRUE) %>% 
+    acast(word ~ sentiment, value.var = "n", fill = 0) %>% 
+    comparison.cloud(colors = c("coral1", "chartreuse4"), max.words = 100)
+  
+  bing_word_counts
+ 
+#Bar chart for most common positive and negative words 
+  bing_word_counts %>%
+    group_by(sentiment) %>%
+    slice_max(n, n = 10) %>% 
+    ungroup() %>%
+    mutate(word = reorder(word, n)) %>%
+    ggplot(aes(n, word, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~sentiment, scales = "free_y") +
+    labs(x = "Contribution to sentiment",
+         y = NULL)
+}
+getPosNegcount_Func("motivation_reason")
+getPosNegcount_Func("concentration_reason")
+getPosNegcount_Func("sleep_reason")
+getPosNegcount_Func("graduation_effect_reason")
+getPosNegcount_Func("feeling_unhappiness_reason")
+getPosNegcount_Func("internet_reason")
+getPosNegcount_Func("full_courses_taken_reason")
+getPosNegcount_Func("stranded_outside_cope")
+getPosNegcount_Func("financial_problem_affect")
+getPosNegcount_Func("additional_notes")
+
+
+#bar plot df_sentiment
+ggplot(data = df_sentiment %>% gather(Variable, sentiment, -columnName), 
+       aes(x = columnName, y = sentiment, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')
+
+```
+
+
