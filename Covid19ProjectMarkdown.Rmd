@@ -14,30 +14,24 @@ runtime: shiny
 ---
 
 
+
 ```{r setup, include=FALSE}
 ### Load Libraries
 knitr::opts_chunk$set(echo = TRUE)
 library(DT)
-library(flexdashboard)
-library(shinydashboard)
 library(shiny)
 library(knitr)
 library(kableExtra)
-library(coin)
 library(tidyverse)
 library(ggcorrplot)
 library(ggpubr)
 library(rstatix)
-library(lubridate)
 library("readxl")
 library(ggpubr)
 library(cowplot)
-library(emojifont)
 library(grid)
-library(performance)
 library(remotes)
 library(plotly)
-library("see")
 library(tidytext)
 library(glue) #for pasting strings
 library(tm)
@@ -47,6 +41,7 @@ library(maps)
 library(plotly)
 library(forcats)
 library(caTools)
+library(nnet)
 
 ```
 
@@ -68,17 +63,43 @@ df_data = read_excel('A Short Survey About Online Studies And Its Effects (Respo
 ```
 
 
-
 # **Related Works**
 
+COVID-19 has had negative consequences on the planet for more than a year, ranging from economic downturns to high mortality tolls that have brought several nations and areas to their knees. We are currently witnessing its catastrophic impacts in the shape of second and third waves, which are claiming a large number of human lives every day in places like India.
+
+There have been numerous studies on the effects of COVID-19, its prediction, symptom analysis in various bodies, academic years across institutes, and their preventive measures in the spirit of continuing studies for students in countries such as the United States, the United Kingdom, and European countries that experience a large number of international students every six months.
+
+Yusen Zhai, Xue Du, 2020 research [1] is one of a few publications that has attempted to determine the impact of COVID-19 on the mental health of college students in the United States.
+
+COVID-19 will have ongoing critical repercussions on college students, according to the report, and "it is thus vital for universities to develop awareness of students' mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis."
+
+Our objective is to not only assist in the discovery of the consequences and worries that university students in Germany may have experienced, but also to assist in the development of recommendations that can help shape the future after the debate.
 
 # **Motivation & Overview**
+
+**Objective 1:** The primary objective of the study is to find out a relation between COVID-19 Lockdown effect on mental health of students who have been taking online semesters mainly in Summer and Winter semesters of 2020/2021. When we talk about correlation, what we mean is to find out whether there was a pattern for students to struggle with online study schedules. The reason for this correlation is the potential behind what students have gone through during the year of confinement to dorms or shared homespaces and whether good or bad, effect could be found on their mental health in the result.
+
+The aspects that should help us find this correlation should be the factors such as semester of the student, demographics such as whether they were stranded in their home country or staying in the dorm room, the communication process of steps to attending online classes by the institute, their internet connection as well their grade score quality. Furthermore, we would like to accommodate a subset of the GHQ-12 questionnaire where we ask the students questions around their concentration span, capability of making decisions, feeling of unhappiness or depression, sleep deprivation, constant feeling of stress and the financial situation of the students during this period of time etc.
+
+**Objective 2:** The second objective of the study is to perform and visualize a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative,neutral to positive and feeling
+of happiness, or fear or trust etc.
+
+**Objective 3:** Our third objective is to aim at predicting the grades of the students who are confined in similar demographic situations as well as share somewhat similar sentiments. This study in no way will predict any student’s depression but only trying to understand whether there are adverse effects on students who have gone ahead for a year with little to no social interaction and at the same time had to go through
+a strenuous schedule of studies and/or part time jobs.
+
+**Questionnaire:**
+[**_A Short Survey About Online Studies And Its Effects_**](https://docs.google.com/forms/d/1iVyj8rxLUdoJLlmdf9S0So3_HSKjNUd31Zn_Pv5r2Pk/edit)
 
 
 
 # **Data**
 
 ## **Data Cleaning & Manipulation**
+
+Data cleaning wasn't as big an issue for such a dataset. Given the fact that the answers were fixed options and required, there was no NAs. Except in the questions which required reasoning. It made no sense to remove those rows as we would be losing out on a lot of information if we removed all NAs for those type of questions.
+
+Furthermore, all the categorical answers were converted to factor variable. And label encoding for each of those factor variable.
+
 ```{r data_manipulation, include=FALSE}
 
 # change column names to a more understandable variable that are recieved from the form
@@ -129,6 +150,10 @@ df_data[cols.char] <- lapply(df_data[cols.char], factor)
 ```
 
 ```{r encode_variables,warning=FALSE, message=FALSE, echo=FALSE}
+
+df_data$living_setup_temp = factor(df_data$living_setup,
+levels = c('In dorm room','WG / Shared apartment','With Family'),
+labels = c(1,2,0))
 
 df_data$motivation_temp = factor(df_data$motivation,
 levels = c('Yes','Maybe','No'),
@@ -192,11 +217,22 @@ labels = c(0,2,1))
 
 #colSums(Filter(is.numeric, df_data_only1_0))
 
+germany_students = df_data %>% 
+  group_by(study_in_germany) %>%
+  summarise(total = n()) %>% 
+  filter(study_in_germany == "Yes")
 
 ```
 
 
 ## **Overview**
+
+
+This section will give a breif overview of the demographics of the students who filled out the questionnaire. A total of `r nrow(df_data)` students filled out the form. The graphs will illustrate what nationalities the students are of and the age range. The focus will shift towards the explanatory analysis of the data.
+
+A total of 29 questions were asked in the questionnaire. The format of the options for the questions were ordinal or categorical.
+
+The pie chart below shows that `r germany_students$total` out of the `r nrow(df_data)` students are studying in Germany. Exactly half of the students are in the age range of 26 to 30. Almost 40% are 21 to 25 years of age. The rest are either below 20 or above 30.
 
 ```{r data_overview,warning=FALSE, message=FALSE, echo=FALSE }
 
@@ -217,8 +253,6 @@ plot_study_country <- plot_study_country %>% layout(title = 'Pie Chart of Studen
 plot_study_country
 
 
-
-
 df_age_count = df_data %>% 
   group_by(age) %>% 
   count(sort = TRUE)
@@ -233,7 +267,7 @@ fig <- fig %>% layout(title = "Age Range Distribution",  showlegend = T,
 fig
 ```
 
-## **World Map**
+## **World Map of Students Nationalities**
 
 ```{r worldmap,warning=FALSE, message=FALSE, include=FALSE }
 
@@ -271,289 +305,393 @@ renderPlot(world_plot)
 
 ```
 
+# **Explaratory Analysis**
 
 
 ```{r frequency_plot,warning=FALSE, message=FALSE, echo=FALSE}
 
-
-df_data %>%
-  ggplot(aes(x = motivation)) +
+plot_freq <- function(col1,x_title,y_title,plot_title) {
+ df_data %>%
+  ggplot(aes(x = .data[[col1]])) +
   geom_bar(fill = "steelblue") + 
   labs(
-    x = "Student Motivated For Online Classes",
-    y = "Number of Students",
-    title = "Motivation For Online Classes"
+    x = x_title,
+    y = y_title,
+    title = plot_title
   )+
   theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5))
+}
 
-df_data %>% 
-  ggplot(aes(x = sleep)) +
-  geom_bar(fill = "steelblue") + 
-  labs(
-    x = "Sleep Disturbed During Online Classes",
-    y = "Number of Students",
-    title = "Sleep Disturbance During Online Classes"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("motivation","Student Motivated For Online Classes","Number of Students","Motivation For Online Classes" )
 
-df_data %>%
-  ggplot(aes(x = education_strain, fill = education_strain)) +
-  geom_bar() +
-    scale_x_discrete(limits=c("1","2","3","4","5"))+
-  labs(
-    x = "Education Strain During Online Classes",
-    y = "Number of Students",
-    title = "Strain During Online Classes (1: Low, 5: High)"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("sleep","Sleep Disturbed During Online Classes","Number of Students","Sleep Disturbance During Online Classes" )
 
-df_data %>% 
-  ggplot(aes(x = graduation_effect)) +
-  geom_bar(fill = "steelblue") + 
-  labs(
-    x = "Graduation Delayed",
-    y = "Number of Students",
-    title = "Plot for Number of Students with Studies Delayed"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("education_strain","Education Strain During Online Classes","Number of Students","Strain During Online Classes (1: Low, 5: High)" )
 
+plot_freq("graduation_effect","Graduation Delayed","Number of Students","Plot for Number of Students with Studies Delayed" )
 
-df_data %>%
-  ggplot(aes(x = feeling_unhappiniess, fill = feeling_unhappiniess)) +
-  geom_bar() +
-    scale_x_discrete(limits=c("1","2","3","4","5"))+
-  labs(
-    x = "Feeling of Unhappiness",
-    y = "Number of Students",
-    title = "Feeling of Unhappiness During Online Classes (1: Low, 5: High)"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("feeling_unhappiniess","Feeling of Unhappiness","Number of Students","Feeling of Unhappiness During Online Classes (1: Low, 5: High)" )
 
-df_data %>%
-  ggplot(aes(x = insititute_assistance, fill = insititute_assistance)) +
-  geom_bar() +
-    scale_x_discrete(limits=c("1","2","3","4","5"))+
-  labs(
-    x = "University Assistance",
-    y = "Number of Students",
-    title = "University Assistance To Students (1: Low, 5: High)"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("insititute_assistance","University Assistance","Number of Students","University Assistance To Students (1: Low, 5: High)" )
 
-df_data %>% 
-  ggplot(aes(x = internet)) +
-  geom_bar(fill = "steelblue") + 
-  labs(
-    x = "Internet Problem",
-    y = "Number of Students",
-    title = "Internet Caused Problem During Online Classes"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("internet","Internet Problem","Number of Students","Internet Caused Problem During Online Classes" )
 
-df_data %>% 
-  ggplot(aes(x = full_courses_taken)) +
-  geom_bar(fill = "steelblue") + 
-  labs(
-    x = "Full Courses Taken",
-    y = "Number of Students",
-    title = "Students Able To Take Full Courses As Wanted"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("full_courses_taken","Full Courses Taken","Number of Students","Students Able To Take Full Courses As Wanted" )
 
-df_data %>% 
-  ggplot(aes(x = stranded_outside)) +
-  geom_bar(fill = "steelblue") + 
-  labs(
-    x = "Sleep Disturbance During Online Classes",
-    y = "Number of Students",
-    title = "Number of Students Stranded Outside the Country of Study"
-  ) +
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
+plot_freq("stranded_outside","Sleep Disturbance During Online Classes","Number of Students","Number of Students Stranded Outside the Country of Study" )
 
+plot_freq("financial_problem","Financial Problem","Number of Students","Financial Strain Amongst Students" )
 
-df_data %>% 
-  ggplot(aes(x = financial_problem)) +
-  geom_bar(fill = "steelblue") + 
-  labs(
-    x = "Financial Problem",
-    y = "Number of Students",
-    title = "Financial Strain Amongst Students"
-  )+
-  theme_bw()+
-  theme(text = element_text(size=18),
-        plot.title = element_text(hjust = 0.5))
-
+plot_freq("living_setup","Type of Living","Number of Students","Living Setup of the Students" )
 
 ```
 
-# **Data Modeling**
 
 ## **Correlations Between Variables**
 
-```{r correlation_plots,warning=FALSE, message=FALSE, echo=FALSE}
+```{r correlation_plots,warning=FALSE, message=FALSE, echo=FALSE, fig.width=10, fig.height=6}
 
-plot1 = df_data %>% 
-  group_by(results_better,concentration) %>%
-  summarise(count = n()) %>% 
-  mutate(rfreq = count/sum(count))
 
-ggplot(plot1, aes(x = results_better, y = concentration,
-                      size = count,
-                      color = results_better))+
-geom_point(alpha = 0.7)+
-scale_size(range = c(0.1, 15), name = "Size Indicator")+
+plot_freq_correlation <- function(col1,col2) {
+ df_data %>%
+  group_by(.data[[col1]],.data[[col2]]) %>%
+  summarise(total = n()) %>% 
+  mutate(percent = total/sum(total)) %>% 
+  ggplot(aes(x = .data[[col1]], y = percent))+
+  geom_bar(
+    aes(fill = .data[[col1]]), stat = "identity", color = "white",
+    position = position_dodge(0.9)
+    )+
+    theme_bw()+
+    scale_y_continuous(labels=scales::percent) +
+    theme(plot.title = element_text(hjust = 0.5),
+          legend.position = "none",
+          axis.title.x=element_blank())
+}
+
+
+# New facet label names for result variable
+result.labs1 <- c("Result Worse", "Not Sure or Same", "Result Better")
+names(result.labs1) <- c("No","Maybe", "Yes")
+
+# New facet label names for living setup variable
+living.labs1 <- c("Single Apartment", "Shared Apartment", "With Family")
+names(living.labs1) <- c("In dorm room","WG / Shared apartment","With Family")
+
+# New facet label names for stranded outside variable
+stranded.labs1 <- c("Wasn't Stranded", "Stranded Outisde the Country")
+names(stranded.labs1) <- c("No","Yes")
+
+# New facet label names for graduation & study outside variable
+grad.labs1 <- c("Graduation Not Delayed", "Graduation Delayed")
+names(grad.labs1) <- c("No","Yes")
+
+# New facet label names for job variable
+job.labs1 <- c("Didn't Lose Job", "Job Lost")
+names(job.labs1) <- c("No","Yes")
+
+# New facet label names for motivation variable
+motv.labs1 <- c("Not Motivated", "No Change", "Motivated")
+names(motv.labs1) <- c("No", "Maybe", "Yes")
+
+# New facet label names for internet variable
+internet.labs1 <- c("No Internet Problems", "Not Sure or Same", "Internet Problems")
+names(internet.labs1) <- c("No","Maybe", "Yes")
+
+# New facet label names for concentration variable
+conc.labs1 <- c("Bad Concentration", "Same Concentration", "Good Concentration")
+names(conc.labs1) <- c("Bad", "Same", "Good")
+
+# New facet label names for result variable
+finance.labs1 <- c("No Financial Problems", "Not Sure or Same", "Financial Problems")
+names(finance.labs1) <- c("No","Maybe", "Yes")
+
+
+
+# Plot1
+plot_freq_correlation("results_better","concentration")+
   labs(
     x = "Results Better",
-    y = "Concentration",
+    y = "Number of Students",
     title = "Relationship Between Concentration & Results"
   )+
-theme_bw()+
-theme(plot.title = element_text(hjust = 0.5))
+  scale_x_discrete(breaks=c("No","Maybe","Yes"),
+                     labels=c("Worse Result","Same or Uncertain", "Better Result"))+
+  facet_wrap(~concentration,
+             labeller = labeller(concentration = conc.labs1)) + 
+  fill_palette("jco")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5),
+      legend.position = "none")
 
 
-plot2 = df_data %>% 
-  group_by(results_better,motivation) %>%
-  summarise(count = n()) %>% 
-  mutate(rfreq = count/sum(count))
-
-ggplot(plot2, aes(x = results_better, y = motivation,
-                      size = count,
-                      color = count))+
-  geom_point(alpha = 0.7)+
-  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+# Plot2
+plot_freq_correlation("results_better","motivation")+
   labs(
     x = "Results Better",
-    y = "Motivation",
+    y = "Number of Students",
     title = "Relationship Between Motivation & Results"
   )+
+  scale_x_discrete(breaks=c("No","Maybe","Yes"),
+                     labels=c("Worse Result","Same or Uncertain", "Better Result"))+
+  facet_wrap(~motivation,
+             labeller = labeller(motivation = motv.labs1)) + 
+  fill_palette("jco")+
   theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+      legend.position = "none")
 
 
-plot3 = df_data %>% 
-  group_by(feeling_unhappiniess,living_setup) %>%
-  summarise(count = n()) %>% 
-  mutate(rfreq = count/sum(count))
-
-ggplot(plot3, aes(x = feeling_unhappiniess, y = living_setup,
-                      size = count,
-                      color = count))+
-  geom_point(alpha = 0.7)+
-  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+# Plot3
+plot_freq_correlation("feeling_unhappiniess","living_setup")+
   labs(
     x = "Level of Unhappiness (1:Low, 5:High)",
-    y = "Living Setup",
+    y = "Number of Students",
     title = "Relationship Between Unhappiness Level & Living Setup"
   )+
+  facet_wrap(~living_setup,
+             labeller = labeller(living_setup = living.labs1)) + 
+  fill_palette("jco")+
   theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+      legend.position = "none")
 
 
-
-plot4 = df_data %>% 
-  group_by(education_strain,feeling_unhappiniess) %>%
-  summarise(count = n()) %>% 
-  mutate(rfreq = count/sum(count))
-
-ggplot(plot4, aes(x = feeling_unhappiniess, y = education_strain,
-                      size = count,
-                      color = count))+
-  geom_point(alpha = 0.7)+
-  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+#Plot4
+plot_freq_correlation("feeling_unhappiniess","job_lost")+
   labs(
     x = "Level of Unhappiness (1:Low, 5:High)",
-    y = "Education Strain (1:Low, 5:High)",
-    title = "Relationship Between Education Strain & Unhappiness Level"
-  )+
-  theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5))
-
-
-
-plot5 = df_data %>% 
-  group_by(feeling_unhappiniess,job_lost) %>%
-  summarise(count = n()) %>% 
-  mutate(rfreq = count/sum(count))
-
-ggplot(plot5, aes(x = feeling_unhappiniess, y = job_lost,
-                      size = count,
-                      color = count))+
-  geom_point(alpha = 0.7)+
-  scale_size(range = c(0.1, 15), name = "Size Indicator")+
-  labs(
-    x = "Level of Unhappiness (1:Low, 5:High)",
-    y = "Job Lost",
+    y = "Number of Students",
     title = "Relationship Between Job Lost & Unhappiness Level"
   )+
+  facet_wrap(~job_lost,
+             labeller = labeller(job_lost = job.labs1)) + 
+  fill_palette("jco")+
   theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+      legend.position = "none")
 
 
-plot6 = df_data %>% 
-  group_by(stranded_outside,feeling_unhappiniess) %>%
-  summarise(count = n()) %>% 
-  mutate(rfreq = count/sum(count))
-
-ggplot(plot6, aes(x = feeling_unhappiniess, y = stranded_outside,
-                      size = count,
-                      color = count))+
-  geom_point(alpha = 0.7)+
-  scale_size(range = c(0.1, 15), name = "Size Indicator")+
+#Plot5
+plot_freq_correlation("feeling_unhappiniess","stranded_outside")+
   labs(
     x = "Level of Unhappiness (1:Low, 5:High)",
-    y = "Standed Outside",
+    y = "Number of Students",
     title = "Relationship Between Standed Outside Country of Study & Unhappiness Level"
   )+
+  facet_wrap(~stranded_outside,
+             labeller = labeller(stranded_outside = stranded.labs1)) + 
+  fill_palette("jco")+
   theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+      legend.position = "none")
+
 
 
 ```
 
-## **Logistic Regression**
 
+
+## **Germany Specific**
+
+
+It seems rather logical to look a little deeper into just the students studying in Germany. Upon analysis it was found that none of the students studying in Germany are actually living with their families.
+
+Out of 45 students who study in Germany, 22 have said their results have gotten worse and 13 say 'maybe'. That is very high percentage of people compared to the people not living in Germany.
+
+None of the students outside Germany lost their jobs during the pandemic, whereas out of 45 people, 14 people lost their jobs.
+
+71.1% of students studying in Germany show high levels of unhappiness or anxiety. Compared to 38.5% of students studying outside.
+
+
+Almost 69% of students studying in Germany faced a delay in their study schedule compared to only 23% for students studying outside.
+
+
+
+
+```{r germany_specific,warning=FALSE, message=FALSE, echo=FALSE, fig.width=10, fig.height=6}
+
+# function for plotting facet bar graph with percentage
+
+plot_facet <- function(col1, col2,facet_lbl,x_title,y_title,plot_title) {
+ df_data %>% 
+  group_by(.data[[col1]], .data[[col2]]) %>%
+  summarise(total = n()) %>% 
+  mutate(percent = total/sum(total)) %>% 
+  ggplot(aes(x = .data[[col1]], y = percent))+
+  geom_bar(
+    aes(fill = .data[[col1]]), stat = "identity", color = "white",
+    position = position_dodge(0.9)
+    )+
+    theme_bw()+
+    scale_y_continuous(labels=scales::percent) +
+    scale_x_discrete(breaks=c("No","Yes"),
+                     labels=c("Outside Germany", "In Germany"))+
+    theme(plot.title = element_text(hjust = 0.5),
+          legend.position = "none",
+          axis.title.x=element_blank())
+}
+
+
+#Plot1
+plot_facet("study_in_germany", "graduation_effect") +
+  facet_wrap(~graduation_effect,
+             labeller = labeller(graduation_effect = grad.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Studying in Germany",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Graduation Delay"
+  )
+
+
+#Plot2
+plot_facet("study_in_germany", "results_better")+
+  facet_wrap(~results_better,
+             labeller = labeller(results_better = result.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Studying in Germany ",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Result"
+  )
+   
+# In terms of job lost
+
+#Plot3
+plot_facet("study_in_germany", "job_lost")+
+  facet_wrap(~job_lost,
+             labeller = labeller(job_lost = job.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Job Lost",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Losing Job"
+  )
+
+
+# In terms of motivation
+#Plot4
+plot_facet("study_in_germany", "motivation")+
+  facet_wrap(~motivation,
+             labeller = labeller(motivation = motv.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Studying in Germany ",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Motivation"
+  )
+
+
+# In terms of internet problems
+#Plot5
+plot_facet("study_in_germany", "internet")+
+  facet_wrap(~internet,
+             labeller = labeller(internet = internet.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Studying in Germany ",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Internet Problems"
+  )
+
+
+# In terms of financial problem
+#Plot6
+plot_facet("study_in_germany", "financial_problem")+
+  facet_wrap(~financial_problem,
+             labeller = labeller(financial_problem = finance.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Studying in Germany ",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Financial Problems"
+  )
+
+
+# In terms of concentration
+#Plot7
+plot_facet("study_in_germany", "concentration")+
+  facet_wrap(~concentration,
+             labeller = labeller(concentration = conc.labs1)) + 
+    fill_palette("jco") +
+  labs(
+    x = "Studying in Germany ",
+    y = "Number of Students (In percentage)",
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Concentration"
+  )
+
+```
+
+
+
+# **Data Modeling**
+
+## **Multinomial Logistic Regression**
+
+To estimate a multinomial logistic regression model, we will use the multinom function from the nnet package. Multinomial regression can also be done with functions from other R packages. We chose the multinom function because it does not need reshaping of data (as the mlogit package requires) and because it closely resembles the sample code in Hilbe's Logistic Regression Models.
+
+Multinom is used to run our model. Because the multinom program does not calculate p-values for regression coefficients, we use Wald tests to do so (here z-tests).
 
 ```{r logistic_model,warning=FALSE, message=FALSE, echo=FALSE}
 
 # Fit the model
-model <- glm( results_better ~ concentration + motivation, data = df_data, family = binomial)
+
+model <- multinom( concentration ~ job_lost + graduation_effect + motivation, data = df_data)
+
+model <- multinom( concentration ~ study_in_germany + graduation_effect + motivation, data = df_data)
+
 # Summarize the model
 summary(model)
 
-# Do this for every variable with results_better to see there is no bias in any variable
-# small number could potentiall get in the way of finding the best fitting line
-xtabs(~ results_better + concentration_temp, data = df_data)
-xtabs(~ results_better + motivation_temp, data = df_data)
-xtabs(~ results_better + education_strain_temp, data = df_data)
+predict(model, df_data, type = "probs")
 
-# prediction
-predicted_data = data.frame(probabiliy_of_grade_better = model$fitted.values, results_better = df_data$results_better)
 
-predicted_data = predicted_data[order(predicted_data$probabiliy_of_grade_better, decreasing = FALSE),]
+z <- summary(model)$coefficients/summary(model)$standard.errors
+z
+
+p <- (1 - pnorm(abs(z), 0, 1)) * 2
+p
+
+
+# confustion matrix and misclassification rate
+cm = table(predict(model), df_data$concentration)
+
+cm %>%
+  kbl(caption = "Confusion Matrix for Predicted & Actual Classification") %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>%
+  add_header_above(c(" ", "Actual" = 3))
+
+
+# Misclassification
+1-sum(diag(cm)/sum(cm))
+
+
+# correct prediction per group
+n = table(df_data$concentration)
+n/sum(n)
+cm/colSums(cm)
+
+
+# logistic model plot
+predicted_data = data.frame(probabiliy_of_grade_better = model$fitted.values, concentration = df_data$concentration,
+                            study_germany = df_data$study_in_germany)
+
+predicted_data = predicted_data[order(predicted_data$probabiliy_of_grade_better.Bad, decreasing = FALSE),]
+
 predicted_data$rank = 1:nrow(predicted_data)
 
-ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better)) +
-  geom_point(aes(color = results_better), alpha=1, shape=4, stroke=2) +
-  xlab("Index") +
-  ylab("Predicted probability of getting better results")
+ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.Bad)) +
+  geom_point(aes(color = concentration), alpha=1, shape=4, stroke=2) +
+  labs(
+    x = "Index",
+    y = "Predicted Probability of getting bad results",
+    title = "Multinomial Logistic Regression Prediction Graph"
+  )+
+  theme_bw()+
+  scale_y_continuous(labels=scales::percent) +
+  theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
@@ -712,6 +850,7 @@ getPosNegcount_Func("additional_notes")
 ggplot(data = df_sentiment %>% gather(Variable, sentiment, -columnName), 
        aes(x = columnName, y = sentiment, fill = Variable)) + 
   geom_bar(stat = 'identity', position = 'dodge')
+
 
 ```
 
