@@ -42,6 +42,10 @@ library(plotly)
 library(forcats)
 library(caTools)
 library(nnet)
+library(caret)
+library(Metrics)
+
+
 
 ```
 
@@ -645,57 +649,93 @@ To estimate a multinomial logistic regression model, we will use the multinom fu
 
 Multinom is used to run our model. Because the multinom program does not calculate p-values for regression coefficients, we use Wald tests to do so (here z-tests).
 
+At first the model is iterated 10 times, starts with the high value of 63.7 and in the final iteration converges to 46.7. Lower number signifies it is finding the last iteration at which there would be the smallest error possible
+
 ```{r logistic_model,warning=FALSE, message=FALSE, echo=FALSE}
+
+set.seed(1234)
+dfModel = df_data[sample(nrow(df_data)),]
+split = floor(0.6 * nrow(dfModel))
+dfModelTrain = dfModel[0:split,]
+dfModelTest = dfModel[(split+1):nrow(dfModel),]
 
 # Fit the model
 
-model <- multinom( concentration ~ job_lost + graduation_effect + motivation, data = df_data)
+model <- multinom( results_better ~ study_in_germany + graduation_effect + job_lost , data = dfModelTest)
 
-model <- multinom( concentration ~ study_in_germany + graduation_effect + motivation, data = df_data)
+# Find most important variables for model
+topModel = varImp(model)
+topModel$Variables = row.names(topModel)
+topModel = topModel[order(-topModel$Overall),]
+head(topModel, 2)
+
+preds1 = predict(model, type = "probs", newdata = dfModelTest)
+preds2 = predict(model, type = "class", newdata = dfModelTest)
+
+head(preds2,5)
+head(preds1,5)
+
+# Accuracy & Kappa Value
+postResample(dfModelTest$results_better, preds2)
+
+
+
+# Cross validation
+totalAccuracy <- c()
+cv <- 10
+cvDivider <- floor(nrow(dfModel) / (cv+1))
+ 
+for (cv in seq(1:cv)) {
+  # assign chunk to data test
+  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+  dataTest <- dfModel[dataTestIndex,]
+  # everything else to train
+  dataTrain <- dfModel[-dataTestIndex,]
+ 
+  cylModel <- multinom(results_better~ study_in_germany + graduation_effect + motivation, data=dataTrain, maxit=1000, trace=T) 
+ 
+  pred <- predict(model, newdata=dataTest, type="class")
+ 
+  #  classification error
+  cv_ac <- postResample(dataTest$results_better, pred)[[1]]
+  print(paste('Current Accuracy:',cv_ac,'for CV:',cv))
+  totalAccuracy <- c(totalAccuracy, cv_ac)
+}
+ mean(totalAccuracy)  
+
 
 # Summarize the model
 summary(model)
 
-predict(model, df_data, type = "probs")
-
-# z-test
-z <- summary(model)$coefficients/summary(model)$standard.errors
-z
-
-# p-value
-p <- (1 - pnorm(abs(z), 0, 1)) * 2
-p
-
 
 # confustion matrix and misclassification rate
-cm = table(predict(model), df_data$concentration)
+cm = table(predict(model), dfModelTest$results_better)
 
 cm %>%
   kbl(caption = "Confusion Matrix for Predicted & Actual Classification") %>%
   kable_classic(full_width = F, html_font = "Cambria") %>%
   add_header_above(c(" ", "Actual" = 3))
 
-
 # Misclassification rate
 1-sum(diag(cm)/sum(cm))
 
 
 # correct prediction per group
-n = table(df_data$concentration)
+n = table(df_data$results_better)
 n/sum(n)
 cm/colSums(cm)
 
 
-# logistic model plot
-predicted_data = data.frame(probabiliy_of_grade_better = model$fitted.values, concentration = df_data$concentration,
-                            study_germany = df_data$study_in_germany)
+# Multinomial logistic model plot
+predicted_data = data.frame(probabiliy_of_grade_better = model$fitted.values, results_better = dfModelTest$results_better,
+                            study_germany = dfModelTest$study_in_germany)
 
-predicted_data = predicted_data[order(predicted_data$probabiliy_of_grade_better.Bad, decreasing = FALSE),]
+predicted_data = predicted_data[order(predicted_data$probabiliy_of_grade_better.No, decreasing = FALSE),]
 
 predicted_data$rank = 1:nrow(predicted_data)
 
-ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.Bad)) +
-  geom_point(aes(color = concentration), alpha=1, shape=4, stroke=2) +
+ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
+  geom_point(aes(color = results_better), alpha=1, shape=4, stroke=2) +
   labs(
     x = "Index",
     y = "Predicted Probability of getting bad results",
@@ -707,28 +747,6 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.Bad)) +
 
 ```
 
-## **Chi-Squared Test**
-
-```{r chi_square,warning=FALSE, message=FALSE, echo=FALSE}
-
-TAB = table(df_data$job_lost, df_data$feeling_unhappiniess)
-
-barplot(TAB, beside = T, legend=T)
-
-CHI = chisq.test(TAB, correct = T)
-
-
-#attributes(CHI)
-#CHI$expected
-
-fisher.test(TAB, conf.int = T, conf.level = 0.99)
-
-library("gplots")
-
-balloonplot(t(TAB), main ="df_data", xlab ="", ylab="",
-            label = FALSE, show.margins = FALSE)
-
-```
 
 # **Sentiment Analysis**
 
