@@ -139,13 +139,24 @@ df_data = df_data %>%
 df_data <- df_data[, -c(1:2)]
 
 # columns to be changed from character to factor
-cols.char <- c("motivation", "living_setup","concentration","sleep","education_strain","graduation_effect",
-              "feeling_unhappiniess","insititute_assistance","internet","job_lost","full_courses_taken","stranded_outside",
-              "financial_problem","results_better") 
+cols.char <- c("living_setup","education_strain",
+              "feeling_unhappiniess","insititute_assistance") 
 
 # change character to factors for chosen columns
 df_data[cols.char] <- lapply(df_data[cols.char], factor)
 
+
+# change the rest of the variables in a consistent level 'No->Maybe->Yes'
+df_data$motivation <- factor(df_data$motivation, level = c('No', 'Maybe', 'Yes'))
+df_data$concentration <- factor(df_data$concentration, level = c('Bad', 'Same', 'Good'))
+df_data$sleep <- factor(df_data$sleep, level = c('No', 'Yes'))
+df_data$graduation_effect <- factor(df_data$graduation_effect, level = c('No', 'Yes'))
+df_data$internet <- factor(df_data$internet, level = c('No', 'Maybe', 'Yes'))
+df_data$job_lost <- factor(df_data$job_lost, level = c('No', 'Yes'))
+df_data$full_courses_taken <- factor(df_data$full_courses_taken, level = c('No', 'Yes'))
+df_data$stranded_outside <- factor(df_data$stranded_outside, level = c('No', 'Yes'))
+df_data$financial_problem <- factor(df_data$financial_problem, level = c('No', 'Maybe', 'Yes'))
+df_data$results_better <- factor(df_data$results_better, level = c('No', 'Maybe', 'Yes'))
 
 ```
 
@@ -207,16 +218,8 @@ df_data$results_better_temp = factor(df_data$results_better,
 levels = c('Yes','Maybe', 'No'),
 labels = c(0,2,1))
 
-#df_data_only1_0 = df_data %>% 
-#  select(motivation_temp,concentration_temp,sleep_temp,education_strain_temp,graduation_effect_temp,feeling_unhappiniess_temp,insititute_assistance_temp,internet_temp,job_lost_temp,full_courses_taken_temp,stranded_outside_temp,financial_problem_temp,results_better)
 
-#df_data_only1_0 %>% 
-#  group_by(results_better) %>% 
-#  rowSums(df_data_only1_0 == 0)
-
-
-#colSums(Filter(is.numeric, df_data_only1_0))
-
+# For inline R code in next section
 germany_students = df_data %>% 
   group_by(study_in_germany) %>%
   summarise(total = n()) %>% 
@@ -236,6 +239,7 @@ The pie chart below shows that `r germany_students$total` out of the `r nrow(df_
 
 ```{r data_overview,warning=FALSE, message=FALSE, echo=FALSE }
 
+# Count students who study in Germany and outside Germany
 study_country_count = df_data %>% 
   group_by(study_in_germany) %>%
   mutate(
@@ -245,6 +249,7 @@ labels = c('Studying in Germany','Studying outside Germany'))
   ) %>% 
   count(sort = TRUE)
 
+# Pie Chart
 plot_study_country <- plot_ly(study_country_count, labels = ~study_in_germany, values = ~n, type = 'pie')
 plot_study_country <- plot_study_country %>% layout(title = 'Pie Chart of Students Studying in Germany',
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
@@ -253,10 +258,12 @@ plot_study_country <- plot_study_country %>% layout(title = 'Pie Chart of Studen
 plot_study_country
 
 
+# Count age rangeof students
 df_age_count = df_data %>% 
   group_by(age) %>% 
   count(sort = TRUE)
 
+# Donut chart for age range
 fig <- df_age_count %>% plot_ly(labels = ~age, values = ~n)
 fig <- fig %>% add_pie(hole = 0.6)
 fig <- fig %>% layout(title = "Age Range Distribution",  showlegend = T,
@@ -271,6 +278,7 @@ fig
 
 ```{r worldmap,warning=FALSE, message=FALSE, include=FALSE }
 
+# Count students nationalities
 df_country_count = df_data %>% 
   group_by(country) %>% 
   count(sort = TRUE)
@@ -283,6 +291,7 @@ df_country_count%>%
 kbl() %>%
   kable_material_dark("hover", full_width = FALSE)
 
+# Create world map with counts
 df_country_count$region <- df_country_count$country
 df_country_count$count_group <- cut(df_country_count$n, 
                       breaks = c(-Inf, 5, 10, 15,20,25, 30, Inf), 
@@ -310,6 +319,7 @@ renderPlot(world_plot)
 
 ```{r frequency_plot,warning=FALSE, message=FALSE, echo=FALSE}
 
+# Function for bar plot for one variable
 plot_freq <- function(col1,x_title,y_title,plot_title) {
  df_data %>%
   ggplot(aes(x = .data[[col1]])) +
@@ -352,6 +362,7 @@ plot_freq("living_setup","Type of Living","Number of Students","Living Setup of 
 
 ```{r correlation_plots,warning=FALSE, message=FALSE, echo=FALSE, fig.width=10, fig.height=6}
 
+# Function for bar plot for two variables
 
 plot_freq_correlation <- function(col1,col2) {
  df_data %>%
@@ -647,10 +658,11 @@ summary(model)
 
 predict(model, df_data, type = "probs")
 
-
+# z-test
 z <- summary(model)$coefficients/summary(model)$standard.errors
 z
 
+# p-value
 p <- (1 - pnorm(abs(z), 0, 1)) * 2
 p
 
@@ -664,7 +676,7 @@ cm %>%
   add_header_above(c(" ", "Actual" = 3))
 
 
-# Misclassification
+# Misclassification rate
 1-sum(diag(cm)/sum(cm))
 
 
