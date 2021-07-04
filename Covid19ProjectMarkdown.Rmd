@@ -645,13 +645,7 @@ plot_facet("study_in_germany", "concentration")+
 
 ## **Multinomial Logistic Regression**
 
-To estimate a multinomial logistic regression model, we will use the multinom function from the nnet package. Multinomial regression can also be done with functions from other R packages. We chose the multinom function because it does not need reshaping of data (as the mlogit package requires) and because it closely resembles the sample code in Hilbe's Logistic Regression Models.
-
-Multinom is used to run our model. Because the multinom program does not calculate p-values for regression coefficients, we use Wald tests to do so (here z-tests).
-
-At first the model is iterated 10 times, starts with the high value of 63.7 and in the final iteration converges to 46.7. Lower number signifies it is finding the last iteration at which there would be the smallest error possible
-
-```{r logistic_model,warning=FALSE, message=FALSE, echo=FALSE}
+```{r logistic_model,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 
 set.seed(1234)
 dfModel = df_data[sample(nrow(df_data)),]
@@ -663,69 +657,104 @@ dfModelTest = dfModel[(split+1):nrow(dfModel),]
 
 model <- multinom( results_better ~ study_in_germany + graduation_effect + job_lost , data = dfModelTest)
 
+# Summarize the model
+#summary(model)
+
 # Find most important variables for model
 topModel = varImp(model)
 topModel$Variables = row.names(topModel)
 topModel = topModel[order(-topModel$Overall),]
-head(topModel, 2)
+#head(topModel, 2)
 
 preds1 = predict(model, type = "probs", newdata = dfModelTest)
 preds2 = predict(model, type = "class", newdata = dfModelTest)
 
-head(preds2,5)
-head(preds1,5)
+#head(preds1,5)
+#head(preds2,5)
 
 # Accuracy & Kappa Value
-postResample(dfModelTest$results_better, preds2)
-
-
+#postResample(dfModelTest$results_better, preds2)
 
 # Cross validation
-totalAccuracy <- c()
-cv <- 10
-cvDivider <- floor(nrow(dfModel) / (cv+1))
+#totalAccuracy <- c()
+#cv <- 10
+#cvDivider <- floor(nrow(dfModel) / (cv+1))
  
-for (cv in seq(1:cv)) {
+#for (cv in seq(1:cv)) {
   # assign chunk to data test
-  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
-  dataTest <- dfModel[dataTestIndex,]
+ # dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+ # dataTest <- dfModel[dataTestIndex,]
   # everything else to train
-  dataTrain <- dfModel[-dataTestIndex,]
+ # dataTrain <- dfModel[-dataTestIndex,]
  
-  cylModel <- multinom(results_better~ study_in_germany + graduation_effect + motivation, data=dataTrain, maxit=1000, trace=T) 
+#  cylModel <- multinom(results_better~ study_in_germany + graduation_effect + motivation, data=dataTrain, maxit=1000, trace=T) 
  
-  pred <- predict(model, newdata=dataTest, type="class")
+ # pred <- predict(model, newdata=dataTest, type="class")
  
   #  classification error
-  cv_ac <- postResample(dataTest$results_better, pred)[[1]]
-  print(paste('Current Accuracy:',cv_ac,'for CV:',cv))
-  totalAccuracy <- c(totalAccuracy, cv_ac)
-}
- mean(totalAccuracy)  
+#  cv_ac <- postResample(dataTest$results_better, pred)[[1]]
+#  print(paste('Current Accuracy:',cv_ac,'for CV:',cv))
+#  totalAccuracy <- c(totalAccuracy, cv_ac)
+#}
+# mean(totalAccuracy)  
 
-
-# Summarize the model
-summary(model)
-
-
-# confustion matrix and misclassification rate
 cm = table(predict(model), dfModelTest$results_better)
+
+```
+
+
+The multinom function from the nnet package will be used to estimate a multinomial logistic regression model. Functions from other R packages can also be used to perform multinomial regression. We chose the multinom function since it does not require data reshaping (as the mlogit package does) and it closely mirrors Hilbe's Logistic Regression Models sample code. Multinomial logistic regression is a straightforward extension of binary logistic regression that allows for the inclusion of more than two categories of the dependent or outcome variable. Our model is run using **Multinom**.
+
+*model <- multinom( results_better ~ study_in_germany + graduation_effect + job_lost , data = dfModelTest)*
+
+The predictors for the model will be students studying in and out of Germany (study_in_germany), the delay of the students graduation (graduation_effect) & if the students lost their jobs or not (job_lost). The response variable will be (results_better) which signifies if the students results got better or worse during online studies.
+
+To create a training and testing data set, first shuffle the data and divide it into two equal data frames. We use **caret's** *varImp* to check the most influential variables once the model has converged. Then, on the testing data set, we use the predict function to predict results. There are two methods for calculating predictions: 'class' and 'probs.'
+
+We run the summary of the model and look at it's interpration:
+
+
+**Accuracy, Kappa & Missclassification**
+
+We use the postResample function from caret to assess the model's accuracy It employs the mean squared error and R-squared for numeric vectors and the overall agreement rate and Kappa for factors.
+
+
+**Accuracy & Kappa:**
+
+**The misclassification rate is:** `r 1-sum(diag(cm)/sum(cm))`
+
+
+```{r ,warning=FALSE, message=FALSE, echo=FALSE}
+# confustion matrix and misclassification rate
 
 cm %>%
   kbl(caption = "Confusion Matrix for Predicted & Actual Classification") %>%
   kable_classic(full_width = F, html_font = "Cambria") %>%
   add_header_above(c(" ", "Actual" = 3))
 
-# Misclassification rate
-1-sum(diag(cm)/sum(cm))
 
+#postResample(dfModelTest$results_better, preds2)
+
+ 
+ 
+# Misclassification rate
+#1-sum(diag(cm)/sum(cm))
 
 # correct prediction per group
-n = table(df_data$results_better)
-n/sum(n)
-cm/colSums(cm)
+#n = table(dfModelTest$results_better)
+
+#pred_group = n/sum(n)
+#cm/colSums(cm)
+```
 
 
+
+**Multinomial Logistic Model Plot**
+
+The graph shows the prediction probabily that the person would get bad result with the actual classification specified by the 3 different colors. It shows that the probability gets better when there are actual bad results, the model predicts those instances with a much higher confidence. The biggest constraint is the lack of data, with higher sample size, the prediction will be a lot better. With higher sample size, cross validation can be used which would make the model more accurate
+
+
+```{r logistic_model_plot,warning=FALSE, message=FALSE, echo=FALSE}
 # Multinomial logistic model plot
 predicted_data = data.frame(probabiliy_of_grade_better = model$fitted.values, results_better = dfModelTest$results_better,
                             study_germany = dfModelTest$study_in_germany)
@@ -738,14 +767,16 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
   geom_point(aes(color = results_better), alpha=1, shape=4, stroke=2) +
   labs(
     x = "Index",
-    y = "Predicted Probability of getting bad results",
-    title = "Multinomial Logistic Regression Prediction Graph"
+    y = "Predicted Probability of getting bad results"
   )+
   theme_bw()+
   scale_y_continuous(labels=scales::percent) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
+
+
+
 
 
 # **Sentiment Analysis**
