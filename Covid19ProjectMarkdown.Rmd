@@ -51,6 +51,7 @@ library(yardstick)
 library(rsample)
 library(recipes)
 library(ranger)
+library("reshape2")
 
 
 
@@ -880,7 +881,7 @@ dfModelTest = dfModel[(split+1):nrow(dfModel),]
 model <- multinom( results_better ~graduation_effect + education_strain + feeling_unhappiniess + study_in_germany + financial_problem , data = dfModelTest)
 
 # Summarize the model
-#summary(model)
+summary(model)
 
 # Find most important variables for model
 topModel = varImp(model)
@@ -935,6 +936,8 @@ The predictors for the model will be students studying in and out of Germany (st
 To create a training and testing data set, first shuffle the data and divide it into two equal data frames. We use **caret's** *varImp* to check the most influential variables once the model has converged. Then, on the testing data set, we use the predict function to predict results. There are two methods for calculating predictions: 'class' and 'probs.'
 
 We run the summary of the model and look at it's interpration:
+
+
 
 
 **Accuracy, Kappa & Missclassification**
@@ -999,8 +1002,11 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
 
 # **Sentiment Analysis**
 
+We have aimed at using text mining techniques using libraries and packages offered by R. From tm to tidyverse, tidytext, glue, wordcloud, dplyr we exploit all of this to understand sentiments behind textual data. 
+Furthermore, study also aims to perform and visualise a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative, neutral to positive and feeling of unhappiness, or fear or trust etc.
+
 ## **Word Cloud**
-```{r wordcloud,warning=FALSE, message=FALSE, echo=FALSE}
+```{r wordcloud,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 
 word_count_func <- function(column_name) {
   
@@ -1018,7 +1024,7 @@ word_count_func <- function(column_name) {
   
   wordcloud(d$word, d$freq, random.order = FALSE,
             rot.per = 0.3, scale = c(4,.5),
-            colors = brewer.pal(8,"Dark2"), max.words = 200, min.freq = 2)
+            colors = brewer.pal(8,"Dark2"),main=column_name, max.words = 200, min.freq = 2)
   
   findFreqTerms(tdm, lowfreq = 2)
   
@@ -1042,7 +1048,7 @@ selectInput(
 )
 ```
 
-```{r wordcloud_plot,warning=FALSE, message=FALSE, echo=FALSE}
+```{r wordcloud_plot,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 renderPlot(word_count_func(input$PlotColumn))
 ```
 
@@ -1083,7 +1089,7 @@ df_sentiment = Reduce(function(x, y) merge(x, y, all=TRUE), list(
 
 #Most common positive and negative words and 
 #positive vs. negative sentiments word cloud together
-getPosNegcount_Func <- function(column_name) {
+getPosNegcount_Func <- function(column_name, plot_title) {
   tidy_column <- df_data %>%
     unnest_tokens(word, column_name)
   
@@ -1091,16 +1097,15 @@ getPosNegcount_Func <- function(column_name) {
     inner_join(get_sentiments("bing")) %>%
     count(word, sentiment, sort = TRUE) %>%
     ungroup()
-  
-  library("reshape2")
-  tidy_column %>% 
+
+   tidy_column %>% 
     inner_join(get_sentiments("bing"), "word") %>%
     count(word, sentiment, sort = TRUE) %>% 
     acast(word ~ sentiment, value.var = "n", fill = 0) %>% 
     comparison.cloud(colors = c("coral1", "chartreuse4"), max.words = 100)
   
   bing_word_counts
- 
+  
 #Bar chart for most common positive and negative words 
   bing_word_counts %>%
     group_by(sentiment) %>%
@@ -1111,27 +1116,53 @@ getPosNegcount_Func <- function(column_name) {
     geom_col(show.legend = FALSE) +
     facet_wrap(~sentiment, scales = "free_y") +
     labs(x = "Contribution to sentiment",
-         y = NULL)
-}
-getPosNegcount_Func("motivation_reason")
-getPosNegcount_Func("concentration_reason")
-getPosNegcount_Func("sleep_reason")
-getPosNegcount_Func("graduation_effect_reason")
-getPosNegcount_Func("feeling_unhappiness_reason")
-getPosNegcount_Func("internet_reason")
-getPosNegcount_Func("full_courses_taken_reason")
-getPosNegcount_Func("stranded_outside_cope")
-getPosNegcount_Func("financial_problem_affect")
-getPosNegcount_Func("additional_notes")
+         y = NULL,
+         title = plot_title) +
+    theme_bw()+
+    theme(plot.title = element_text(color = "darkslateblue",hjust = 0.5, size = 22, face = "bold"))
+  
 
+}
+  
+
+
+getPosNegcount_Func("motivation_reason", "Variable: Motivation")
+getPosNegcount_Func("concentration_reason", "Variable: Concentration")
+getPosNegcount_Func("sleep_reason", "Variable: Sleep Disturbance")
+getPosNegcount_Func("graduation_effect_reason", "Variable: Graduation Delayed/Effected")
+getPosNegcount_Func("feeling_unhappiness_reason", "Variable: Unhappiness")
+getPosNegcount_Func("internet_reason", "Variable: Internet Problems")
+getPosNegcount_Func("full_courses_taken_reason", "Variable: Able to Take Full Courses")
+getPosNegcount_Func("stranded_outside_cope", "Variable: Stranded Outside")
+getPosNegcount_Func("financial_problem_affect", "Variable: Financial Problems")
+getPosNegcount_Func("additional_notes", "Variable: Additional Notes")
 
 #bar plot df_sentiment
-ggplot(data = df_sentiment %>% gather(Variable, sentiment, -columnName), 
-       aes(x = columnName, y = sentiment, fill = Variable)) + 
-  geom_bar(stat = 'identity', position = 'dodge')
+
+ggplot(data=df_sentiment, aes(x=columnName, y=sentiment, fill=columnName)) +
+  geom_bar(stat="identity")+
+  theme_bw()+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  guides(fill=guide_legend(title="Variable Name")) +
+  labs(
+    title = "Sentiment by Counting Positive & Negative Words"
+  )
 
 
 ```
+
+# **Final Analysis**
+
+**What did you learn about the data?**
+
+We curated the survey questions based on our own experiences of being a student that has seen a shift of academic and professional ecosystem in the last 1.5 years. This inspired the study and therefore we wanted to understand what the students have been feeling during this time, the major concerns they have, what affected their study? Did they get better results? etc. The data was not only open-text questions but also likert scale method of scoring as well as categorical data etc. We understood the demographics of survey respondents, their age, location etc.
+
+
+**How did you answer the questions?**
+
+We started a basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stopword removal. We found answers of our research questions by performing a sentiment analysis on text data. We also tried to find correlation between different variables. These were integral to find out whether each variable contribute to other or not. We also ran ML models such as Logistic Regression in order to predict grades of Masters students. The most essential struggle for us was having not enough data. We highly emphasis on future work where we can have higher number of survey respondents - ideally more than 100 so we could have a better training and test data split and offer more promising results of the study.
 
 # **REFERENCES**
 
