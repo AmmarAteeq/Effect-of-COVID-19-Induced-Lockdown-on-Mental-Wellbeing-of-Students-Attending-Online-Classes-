@@ -11,6 +11,8 @@ output:
     theme: readable
     highlight: tango
 runtime: shiny
+bibliography: citation.bib
+csl: ieee.csl
 ---
 
 
@@ -44,6 +46,11 @@ library(caTools)
 library(nnet)
 library(caret)
 library(Metrics)
+library(parsnip)
+library(yardstick)
+library(rsample)
+library(recipes)
+library(ranger)
 
 
 
@@ -63,7 +70,7 @@ options(max.print=1000000)
 ### Load Datasets
 
 #Datasets
-df_data = read_excel('A Short Survey About Online Studies And Its Effects (Responses) (1).xlsx')
+df_data = read_excel('A Short Survey About Online Studies And Its Effects (Responses).xlsx')
 ```
 
 
@@ -73,7 +80,7 @@ COVID-19 has had negative consequences on the planet for more than a year, rangi
 
 There have been numerous studies on the effects of COVID-19, its prediction, symptom analysis in various bodies, academic years across institutes, and their preventive measures in the spirit of continuing studies for students in countries such as the United States, the United Kingdom, and European countries that experience a large number of international students every six months.
 
-Yusen Zhai, Xue Du, 2020 research [1] is one of a few publications that has attempted to determine the impact of COVID-19 on the mental health of college students in the United States.
+Yusen Zhai, Xue Du, 2020 research [@article] is one of a few publications that has attempted to determine the impact of COVID-19 on the mental health of college students in the United States.
 
 COVID-19 will have ongoing critical repercussions on college students, according to the report, and "it is thus vital for universities to develop awareness of students' mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis."
 
@@ -85,11 +92,9 @@ Our objective is to not only assist in the discovery of the consequences and wor
 
 The aspects that should help us find this correlation should be the factors such as semester of the student, demographics such as whether they were stranded in their home country or staying in the dorm room, the communication process of steps to attending online classes by the institute, their internet connection as well their grade score quality. Furthermore, we would like to accommodate a subset of the GHQ-12 questionnaire where we ask the students questions around their concentration span, capability of making decisions, feeling of unhappiness or depression, sleep deprivation, constant feeling of stress and the financial situation of the students during this period of time etc.
 
-**Objective 2:** The second objective of the study is to perform and visualize a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative,neutral to positive and feeling
-of happiness, or fear or trust etc.
+**Objective 2:** The second objective of the study is to perform and visualize a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative,neutral to positive and feeling of happiness, or fear or trust etc.
 
-**Objective 3:** Our third objective is to aim at predicting the grades of the students who are confined in similar demographic situations as well as share somewhat similar sentiments. This study in no way will predict any student’s depression but only trying to understand whether there are adverse effects on students who have gone ahead for a year with little to no social interaction and at the same time had to go through
-a strenuous schedule of studies and/or part time jobs.
+**Objective 3:** Our third objective is to aim at predicting the grades of the students who are confined in similar demographic situations as well as share somewhat similar sentiments. This study in no way will predict any student’s depression but only trying to understand whether there are adverse effects on students who have gone ahead for a year with little to no social interaction and at the same time had to go through a strenuous schedule of studies and/or part time jobs.
 
 **Questionnaire:**
 [**_A Short Survey About Online Studies And Its Effects_**](https://docs.google.com/forms/d/1iVyj8rxLUdoJLlmdf9S0So3_HSKjNUd31Zn_Pv5r2Pk/edit)
@@ -102,7 +107,7 @@ a strenuous schedule of studies and/or part time jobs.
 
 Data cleaning wasn't as big an issue for such a dataset. Given the fact that the answers were fixed options and required, there was no NAs. Except in the questions which required reasoning. It made no sense to remove those rows as we would be losing out on a lot of information if we removed all NAs for those type of questions.
 
-Furthermore, all the categorical answers were converted to factor variable. And label encoding for each of those factor variable.
+Furthermore, all the categorical answers were converted to factor variable with consistent levels (No-Maybe-Yes).
 
 ```{r data_manipulation, include=FALSE}
 
@@ -318,7 +323,7 @@ renderPlot(world_plot)
 
 ```
 
-# **Explaratory Analysis**
+# **Exploratory Analysis**
 
 
 ```{r frequency_plot,warning=FALSE, message=FALSE, echo=FALSE}
@@ -423,7 +428,6 @@ finance.labs1 <- c("No Financial Problems", "Not Sure or Same", "Financial Probl
 names(finance.labs1) <- c("No","Maybe", "Yes")
 
 
-
 # Plot1
 plot_freq_correlation("results_better","concentration")+
   labs(
@@ -504,6 +508,67 @@ plot_freq_correlation("feeling_unhappiniess","stranded_outside")+
 
 
 
+germany_students_result_no = df_data %>% 
+  group_by(study_in_germany, results_better) %>%
+  summarise(total = n()) %>% 
+  filter(study_in_germany == "Yes" & results_better == "No")
+
+germany_students_result_maybe = df_data %>% 
+  group_by(study_in_germany, results_better) %>%
+  summarise(total = n()) %>% 
+  filter(study_in_germany == "Yes" & results_better == "Maybe")
+
+
+germany_students_result_lost_job = df_data %>% 
+  group_by(study_in_germany, job_lost) %>%
+  summarise(total = n()) %>% 
+  filter(study_in_germany == "Yes" & job_lost == "Yes")
+
+germany_unhappiness = df_data %>% 
+  group_by(study_in_germany, feeling_unhappiniess) %>%
+  summarise(total = n()) %>%
+  mutate(percent = total/sum(total)*100) %>% 
+  filter(study_in_germany == "Yes" & (feeling_unhappiniess == 4 | feeling_unhappiniess == 5)) %>%
+  select(percent) %>% 
+  summarise_all(funs(sum)) %>% 
+  mutate(
+    percent = round(percent, digits = 2)
+  )
+
+germany_outside_unhappiness = df_data %>% 
+  group_by(study_in_germany, feeling_unhappiniess) %>%
+  summarise(total = n()) %>%
+  mutate(percent = total/sum(total)*100) %>% 
+  filter(study_in_germany == "No" & (feeling_unhappiniess == 4 | feeling_unhappiniess == 5)) %>%
+  select(percent) %>% 
+  summarise_all(funs(sum)) %>% 
+  mutate(
+    percent = round(percent, digits = 2)
+  )
+
+
+germany_students_graduation_effect = df_data %>% 
+  group_by(study_in_germany, graduation_effect) %>%
+  summarise(total = n()) %>%
+  mutate(percent = total/sum(total)*100) %>% 
+  filter(study_in_germany == "Yes" & graduation_effect == "Yes") %>%
+  select(percent) %>% 
+  summarise_all(funs(sum)) %>% 
+  mutate(
+    percent = round(percent, digits = 2)
+  )
+
+germany_outside_students_graduation_effect = df_data %>% 
+  group_by(study_in_germany, graduation_effect) %>%
+  summarise(total = n()) %>%
+  mutate(percent = total/sum(total)*100) %>% 
+  filter(study_in_germany == "No" & graduation_effect == "Yes") %>%
+  select(percent) %>% 
+  summarise_all(funs(sum)) %>% 
+  mutate(
+    percent = round(percent, digits = 2)
+  )
+
 ```
 
 
@@ -513,14 +578,14 @@ plot_freq_correlation("feeling_unhappiniess","stranded_outside")+
 
 It seems rather logical to look a little deeper into just the students studying in Germany. Upon analysis it was found that none of the students studying in Germany are actually living with their families.
 
-Out of 45 students who study in Germany, 22 have said their results have gotten worse and 13 say 'maybe'. That is very high percentage of people compared to the people not living in Germany.
+Out of `r germany_students$total` students who study in Germany, `r germany_students_result_no$total` have said their results have gotten worse and `r germany_students_result_maybe$total` say 'maybe'. That is very high percentage of people compared to the people not living in Germany.
 
-None of the students outside Germany lost their jobs during the pandemic, whereas out of 45 people, 14 people lost their jobs.
+None of the students outside Germany lost their jobs during the pandemic, whereas out of `r germany_students$total` people, `r germany_students_result_lost_job$total` people lost their jobs.
 
-71.1% of students studying in Germany show high levels of unhappiness or anxiety. Compared to 38.5% of students studying outside.
+`r germany_unhappiness$percent`% of students studying in Germany show high levels of unhappiness or anxiety. Compared to `r germany_outside_unhappiness$percent`% of students studying outside.
 
 
-Almost 69% of students studying in Germany faced a delay in their study schedule compared to only 23% for students studying outside.
+Almost `r germany_students_graduation_effect$percent`% of students studying in Germany faced a delay in their study schedule compared to only `r germany_outside_students_graduation_effect$percent`% for students studying outside.
 
 
 
@@ -643,19 +708,176 @@ plot_facet("study_in_germany", "concentration")+
 
 # **Data Modeling**
 
+
+
+  
+
+## **Random Forrest**
+
+The function train() from Caret Package used for model buidling. Several functions from other R Packages are also used pre-processing, data wrangling and visualziations.
+ It includes Tunning algorithm which helps us get better results and give is the freedom to tune more parameters in a better fashion. We tried to balance two main paramters
+ i.e. mtry and ntree. mtry: Number of variable is randomly collected to be sampled at each split time and ntree: Number of branches will grow after each time split. 
+ 
+ We trained 3 different model in get the best information out of the data. Following are the data modeling formulae:
+ 
+**Model 1:** Was the student able to concerntrate on studies (concentration) as the dependent variable. Independent variables are:
+                  How much strain does a student have (education_strain), which country is the student studying in (country_study), 
+                  is the student getting enough sleep (sleep), the delay of the students graduation (graduation_effect), internet problems (internet), 
+                  did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside) and were there any financial 
+                  problems (financial_problem).
+                  
+                  train(concentration ~ education_strain + country_study + sleep + graduation_effect +
+                  internet + job_lost + stranded_outside + financial_problem
+                , data=so_training,  method= rf)
+
+**Model 2:** Did the result get better (results_better) as the dependent variable. Independent variables are:
+                   How much strain does a student have (education_strain), is the student getting enough sleep (sleep), he delay of the students graduation (graduation_effect),
+                   did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside), internet problems (internet) and were there any financial 
+                   problems (financial_problem).
+                   
+ 
+ 
+                  train( results_better ~ 
+                    education_strain  + sleep + graduation_effect +
+                    internet + job_lost + stranded_outside + financial_problem
+                  , data=so_training, method=rf)
+                  
+                  
+**Model 3:** How motivated does the student feel (motivation) as the dependent variable. Independent variables are:
+                  How unhappy does the student feel (feeling_unhappiniess), is the student getting enough sleep (sleep),  he delay of the students graduation (graduation_effect),
+                  was the student stranded outside germany (stranded_outside), internet problems (internet) and  did the student lost job due to covid-19 (job_lost).
+ 
+ 
+                  train(motivation ~ feeling_unhappiniess + sleep + graduation_effect + stranded_outside + internet + job_lost
+                 , data=so_training, method= rf)
+                 
+  We compare two major aspects;
+  1. Training and Testing accuracies for each model.
+  2. Training accuracies with Kappa values for each model. 
+  
+  
+  **THE GRAPHS:**
+  
+  The first scatter plot shows the camparison between the three models. Making Model 1 (Concerntration) to be the best modelled Independent variable, having explanation 
+  of just over 70% training accuracy and just under 45% of testing accuracy. The remaining two model are having different interpretation as the first one. 
+  
+  The second scatter plot agaib shows the camparison between the three models, but this time it is Training Accuracies with Kappa Values. Model 1 (Concerntration)
+  having describing more relevancy with Kappa value greater than 36%.
+  
+  
+```{r random_forrest_model,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+
+# Random  Forest Classification from the package is used. 
+
+set.seed(123)
+
+# dividing Testing and Training Data 
+init_split <-  initial_split(df_data,prop=3/4)
+so_training <- training(init_split)
+so_testing <- testing(init_split)
+
+# Setting Cross-Validation Parameter Control
+control_1 <- trainControl(method="repeatedcv", 
+                          number=10, 
+                          repeats=3)
+
+
+# Checking Dimensions of Training and Testing sets
+dim(so_testing)
+dim(so_training)
+
+
+# building model 1
+fit.rf <- train(concentration ~ education_strain + country_study + sleep + graduation_effect +
+                  internet + job_lost + stranded_outside + financial_problem
+                , data=so_training, method="rf", metric="Accuracy", trControl=control_1, na.action=na.exclude)
+
+
+# building model 2
+fit.rf2 <- train( results_better ~ study_in_germany + graduation_effect  + financial_problem
+                  , data=so_training, method="rf", metric="Accuracy", trControl=control_1, na.action=na.exclude)
+
+# building model 3
+fit.rf3 <- train(motivation ~ feeling_unhappiniess   + sleep + graduation_effect + stranded_outside + internet + job_lost
+                 , data=so_training, method="rf", metric="Accuracy", trControl=control_1, na.action=na.exclude)
+
+
+
+# estimate Random Forrest on the testing dataset
+
+# evaluating model 1
+fit.rf # model details
+predictions_fit.rf <- predict(fit.rf, so_testing)
+cm_fit.rf <- confusionMatrix(predictions_fit.rf, so_testing$concentration) #confusion matrix
+print(cm_fit.rf)
+
+# evaluating model 2
+
+fit.rf2 # model details
+predictions_fit.rf2 <- predict(fit.rf2, so_testing) 
+cm_fit.rf2 <- confusionMatrix(predictions_fit.rf2, so_testing$results_better) #confusion matrix
+print(cm_fit.rf2)
+
+# evaluating model 3
+fit.rf3 # model details
+predictions_fit.rf3 <- predict(fit.rf3, so_testing)
+cm_fit.rf3 <- confusionMatrix(predictions_fit.rf3, so_testing$motivation) #confusion matrix
+print(cm_fit.rf3)
+
+
+# comparison of models
+
+# making tables for extracted values
+training_accuracies <- list(m1 =max(fit.rf$results$Accuracy) , m2=max(fit.rf2$results$Accuracy), m3= max(fit.rf3$results$Accuracy))
+print(training_accuracies)
+training_kappa <- list(m1= max(fit.rf$results$Kappa), m2 = max(fit.rf2$results$Kappa), m3 = max(fit.rf3$results$Kappa))
+print(training_kappa)
+testing_accuracies <- list(m1 = cm_fit.rf$overall[1] , m2 = cm_fit.rf2$overall[1] , m3= cm_fit.rf3$overall[1])
+print(testing_accuracies) 
+
+# making data frames to plot graphs
+table1 <- do.call(rbind, Map(data.frame, Training_Acc=training_accuracies, Testing_Acc=testing_accuracies))
+table2 <- do.call(rbind, Map(data.frame, Training_Acc=training_accuracies, Training_Kappa_values=training_kappa))
+print(table1)
+
+
+# Plotting Training vs Testing Accuracies
+ggplot(table1, aes(x=Testing_Acc, y=Training_Acc)) +
+  geom_point(shape=16, color="light blue", size = 8) + 
+  geom_text(label=rownames(table1)) +
+  theme_bw() +
+  labs(
+    x = "Testing Accuracies",
+    y = "Testubg Kappa Values"
+  )
+
+
+# Plotting Training vs Training Kappa
+ggplot(table2, aes(x=Training_Acc, y=Training_Kappa_values)) +
+  geom_point(shape=16, color="light green", size = 8) + 
+  geom_text(label=rownames(table2)) +
+  theme_bw()+
+  labs(
+    x = "Training Accuracies",
+    y = "Training Kappa Values"
+  )
+
+```
+
+
 ## **Multinomial Logistic Regression**
 
 ```{r logistic_model,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 
-set.seed(1234)
+set.seed(123)
 dfModel = df_data[sample(nrow(df_data)),]
-split = floor(0.6 * nrow(dfModel))
+split = floor(0.75 * nrow(dfModel))
 dfModelTrain = dfModel[0:split,]
 dfModelTest = dfModel[(split+1):nrow(dfModel),]
 
 # Fit the model
 
-model <- multinom( results_better ~ study_in_germany + graduation_effect + job_lost , data = dfModelTest)
+model <- multinom( results_better ~graduation_effect + education_strain + feeling_unhappiniess + study_in_germany + financial_problem , data = dfModelTest)
 
 # Summarize the model
 #summary(model)
@@ -664,32 +886,32 @@ model <- multinom( results_better ~ study_in_germany + graduation_effect + job_l
 topModel = varImp(model)
 topModel$Variables = row.names(topModel)
 topModel = topModel[order(-topModel$Overall),]
-#head(topModel, 2)
+head(topModel, 2)
 
 preds1 = predict(model, type = "probs", newdata = dfModelTest)
 preds2 = predict(model, type = "class", newdata = dfModelTest)
 
-#head(preds1,5)
-#head(preds2,5)
+head(preds1,5)
+head(preds2,5)
 
 # Accuracy & Kappa Value
-#postResample(dfModelTest$results_better, preds2)
+postResample(dfModelTest$results_better, preds2)
 
 # Cross validation
-#totalAccuracy <- c()
-#cv <- 10
-#cvDivider <- floor(nrow(dfModel) / (cv+1))
+totalAccuracy <- c()
+cv <- 10
+cvDivider <- floor(nrow(dfModel) / (cv+1))
  
 #for (cv in seq(1:cv)) {
-  # assign chunk to data test
- # dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
- # dataTest <- dfModel[dataTestIndex,]
+#   assign chunk to data test
+#  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
+#  dataTest <- dfModel[dataTestIndex,]
   # everything else to train
- # dataTrain <- dfModel[-dataTestIndex,]
+#  dataTrain <- dfModel[-dataTestIndex,]
  
 #  cylModel <- multinom(results_better~ study_in_germany + graduation_effect + motivation, data=dataTrain, maxit=1000, trace=T) 
  
- # pred <- predict(model, newdata=dataTest, type="class")
+#  pred <- predict(model, newdata=dataTest, type="class")
  
   #  classification error
 #  cv_ac <- postResample(dataTest$results_better, pred)[[1]]
@@ -702,6 +924,7 @@ cm = table(predict(model), dfModelTest$results_better)
 
 ```
 
+Since the target variable was categorical with 3 levels ('Yes' 'No' 'Maybe'). Even though the choice for Logistic regression model was obvious, it was tricky to do it for 3 levels. This is where multinomial logistic regression comes into play. It considers more than 2 levels for the outcome variable as opposed to the standard glm funcion which is used for binomial variable type.
 
 The multinom function from the nnet package will be used to estimate a multinomial logistic regression model. Functions from other R packages can also be used to perform multinomial regression. We chose the multinom function since it does not require data reshaping (as the mlogit package does) and it closely mirrors Hilbe's Logistic Regression Models sample code. Multinomial logistic regression is a straightforward extension of binary logistic regression that allows for the inclusion of more than two categories of the dependent or outcome variable. Our model is run using **Multinom**.
 
@@ -724,7 +947,7 @@ We use the postResample function from caret to assess the model's accuracy It em
 **The misclassification rate is:** `r 1-sum(diag(cm)/sum(cm))`
 
 
-```{r ,warning=FALSE, message=FALSE, echo=FALSE}
+```{r confusion_matrix ,warning=FALSE, message=FALSE, echo=FALSE}
 # confustion matrix and misclassification rate
 
 cm %>%
@@ -733,18 +956,16 @@ cm %>%
   add_header_above(c(" ", "Actual" = 3))
 
 
-#postResample(dfModelTest$results_better, preds2)
-
- 
+postResample(dfModelTest$results_better, preds2)
  
 # Misclassification rate
-#1-sum(diag(cm)/sum(cm))
+1-sum(diag(cm)/sum(cm))
 
 # correct prediction per group
-#n = table(dfModelTest$results_better)
+n = table(dfModelTest$results_better)
 
-#pred_group = n/sum(n)
-#cm/colSums(cm)
+n/sum(n)
+cm/colSums(cm)
 ```
 
 
@@ -774,9 +995,6 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
-
-
-
 
 
 # **Sentiment Analysis**
@@ -915,4 +1133,5 @@ ggplot(data = df_sentiment %>% gather(Variable, sentiment, -columnName),
 
 ```
 
+# **REFERENCES**
 
