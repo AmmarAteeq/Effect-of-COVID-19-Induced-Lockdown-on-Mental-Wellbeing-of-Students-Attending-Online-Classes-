@@ -7,7 +7,7 @@ output:
     toc: true
     number_sections : true
     toc_depth: 2
-    toc_float: true 
+    toc_float: true
     theme: readable
     highlight: tango
 bibliography: citation.bib
@@ -55,14 +55,14 @@ library("reshape2")
 
 ```
 
-# **Effect of COVID-19 Induced Lockdown on Mental Wellbeing of Students Attending Online Classes ** {-} 
+# **Effect of COVID-19 Induced Lockdown on Mental Wellbeing of Students Attending Online Classes ** {-}
 
 **By:**
 
  * Ammar Ateeq
  * Muhammad Hashim Naveed
  * Sidra Aziz
- 
+
 ```{r dataset, include=FALSE}
 options(max.print=1000000)
 
@@ -111,7 +111,7 @@ Furthermore, all the categorical answers were converted to factor variable with 
 ```{r data_manipulation, include=FALSE}
 
 # change column names to a more understandable variable that are recieved from the form
-df_data = df_data %>% 
+df_data = df_data %>%
   rename(
     age = `What is your age?`,
     country = `Which country are you from?`,
@@ -141,14 +141,14 @@ df_data = df_data %>%
     financial_problem_affect = `If your answer is 'yes' to the question above, how do you think it affected your studies?`,
     results_better = `Did you get better results in online-exam setting where you could take the exam in premise of your own home?`,
     additional_notes = `Please share any thoughts in addition that you feel were not addressed in above questions.`
-  ) 
+  )
 
 # delete columns 1 & 2
 df_data <- df_data[, -c(1:2)]
 
 # columns to be changed from character to factor
 cols.char <- c("living_setup","education_strain",
-              "feeling_unhappiniess","insititute_assistance") 
+              "feeling_unhappiniess","insititute_assistance")
 
 # change character to factors for chosen columns
 df_data[cols.char] <- lapply(df_data[cols.char], factor)
@@ -228,9 +228,9 @@ labels = c(0,2,1))
 
 
 # For inline R code in next section
-germany_students = df_data %>% 
+germany_students = df_data %>%
   group_by(study_in_germany) %>%
-  summarise(total = n()) %>% 
+  summarise(total = n()) %>%
   filter(study_in_germany == "Yes")
 
 ```
@@ -248,13 +248,13 @@ The pie chart below shows that `r germany_students$total` out of the `r nrow(df_
 ```{r data_overview,warning=FALSE, message=FALSE, echo=FALSE }
 
 # Count students who study in Germany and outside Germany
-study_country_count = df_data %>% 
+study_country_count = df_data %>%
   group_by(study_in_germany) %>%
   mutate(
    study_in_germany =  factor(study_in_germany,
 levels = c('Yes','No'),
 labels = c('Studying in Germany','Studying outside Germany'))
-  ) %>% 
+  ) %>%
   count(sort = TRUE)
 
 # Pie Chart
@@ -267,8 +267,8 @@ plot_study_country
 
 
 # Count age rangeof students
-df_age_count = df_data %>% 
-  group_by(age) %>% 
+df_age_count = df_data %>%
+  group_by(age) %>%
   count(sort = TRUE)
 
 # Donut chart for age range
@@ -289,22 +289,22 @@ Most of the students are from the subcontinent region mainly Pakistan & India.
 ```{r worldmap,warning=FALSE, message=FALSE, echo=FALSE, fig.width= 12}
 
 # Count students nationalities
-df_country_count = df_data %>% 
-  group_by(country) %>% 
+df_country_count = df_data %>%
+  group_by(country) %>%
   count(sort = TRUE)
 
 df_country_count_table = df_country_count%>%
   rename(
     Country = country,
     Count = n
-  ) %>% 
+  ) %>%
 kbl() %>%
   kable_material_dark("hover", full_width = FALSE)
 
 # Create world map with counts
 df_country_count$region <- df_country_count$country
-df_country_count$count_group <- cut(df_country_count$n, 
-                      breaks = c(-Inf, 5, 10, 15,20,25, 30, Inf), 
+df_country_count$count_group <- cut(df_country_count$n,
+                      breaks = c(-Inf, 5, 10, 15,20,25, 30, Inf),
                       labels = c("Less than 5", "5-10", "10-15", "15-20","20-25","25-30", "More than 30"))
 
 world_map <- map_data(map = "world")
@@ -335,7 +335,7 @@ This section will look into the basic distribution of data amongst the different
 plot_freq <- function(col1,x_title,y_title,plot_title, plot_caption) {
  df_data %>%
   ggplot(aes(x = .data[[col1]])) +
-  geom_bar(fill = "steelblue") + 
+  geom_bar(fill = "steelblue") +
   labs(
     x = x_title,
     y = y_title,
@@ -386,8 +386,8 @@ Losing job also leads to unhappiness which can be seen in the figure.
 plot_freq_correlation <- function(col1,col2) {
  df_data %>%
   group_by(.data[[col1]],.data[[col2]]) %>%
-  summarise(total = n()) %>% 
-  mutate(percent = total/sum(total)) %>% 
+  summarise(total = n()) %>%
+  mutate(percent = total/sum(total)) %>%
   ggplot(aes(x = .data[[col1]], y = percent))+
   geom_bar(
     aes(fill = .data[[col1]]), stat = "identity", color = "white",
@@ -449,7 +449,7 @@ plot_freq_correlation("results_better","concentration")+
   scale_x_discrete(breaks=c("No","Maybe","Yes"),
                      labels=c("Worse Result","Same or Uncertain", "Better Result"))+
   facet_wrap(~concentration,
-             labeller = labeller(concentration = conc.labs1)) + 
+             labeller = labeller(concentration = conc.labs1)) +
   fill_palette("jco")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
@@ -467,7 +467,7 @@ plot_freq_correlation("results_better","motivation")+
   scale_x_discrete(breaks=c("No","Maybe","Yes"),
                      labels=c("Worse Result","Same or Uncertain", "Better Result"))+
   facet_wrap(~motivation,
-             labeller = labeller(motivation = motv.labs1)) + 
+             labeller = labeller(motivation = motv.labs1)) +
   fill_palette("jco")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
@@ -483,7 +483,7 @@ plot_freq_correlation("feeling_unhappiniess","living_setup")+
     caption = "Figure 14"
   )+
   facet_wrap(~living_setup,
-             labeller = labeller(living_setup = living.labs1)) + 
+             labeller = labeller(living_setup = living.labs1)) +
   fill_palette("jco")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
@@ -499,7 +499,7 @@ plot_freq_correlation("feeling_unhappiniess","job_lost")+
     caption = "Figure 15"
   )+
   facet_wrap(~job_lost,
-             labeller = labeller(job_lost = job.labs1)) + 
+             labeller = labeller(job_lost = job.labs1)) +
   fill_palette("jco")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
@@ -515,7 +515,7 @@ plot_freq_correlation("feeling_unhappiniess","stranded_outside")+
     caption = "Figure 16"
   )+
   facet_wrap(~stranded_outside,
-             labeller = labeller(stranded_outside = stranded.labs1)) + 
+             labeller = labeller(stranded_outside = stranded.labs1)) +
   fill_palette("jco")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
@@ -523,63 +523,63 @@ plot_freq_correlation("feeling_unhappiniess","stranded_outside")+
 
 
 
-germany_students_result_no = df_data %>% 
+germany_students_result_no = df_data %>%
   group_by(study_in_germany, results_better) %>%
-  summarise(total = n()) %>% 
+  summarise(total = n()) %>%
   filter(study_in_germany == "Yes" & results_better == "No")
 
-germany_students_result_maybe = df_data %>% 
+germany_students_result_maybe = df_data %>%
   group_by(study_in_germany, results_better) %>%
-  summarise(total = n()) %>% 
+  summarise(total = n()) %>%
   filter(study_in_germany == "Yes" & results_better == "Maybe")
 
 
-germany_students_result_lost_job = df_data %>% 
+germany_students_result_lost_job = df_data %>%
   group_by(study_in_germany, job_lost) %>%
-  summarise(total = n()) %>% 
+  summarise(total = n()) %>%
   filter(study_in_germany == "Yes" & job_lost == "Yes")
 
-germany_unhappiness = df_data %>% 
+germany_unhappiness = df_data %>%
   group_by(study_in_germany, feeling_unhappiniess) %>%
   summarise(total = n()) %>%
-  mutate(percent = total/sum(total)*100) %>% 
+  mutate(percent = total/sum(total)*100) %>%
   filter(study_in_germany == "Yes" & (feeling_unhappiniess == 4 | feeling_unhappiniess == 5)) %>%
-  select(percent) %>% 
-  summarise_all(funs(sum)) %>% 
+  select(percent) %>%
+  summarise_all(funs(sum)) %>%
   mutate(
     percent = round(percent, digits = 2)
   )
 
-germany_outside_unhappiness = df_data %>% 
+germany_outside_unhappiness = df_data %>%
   group_by(study_in_germany, feeling_unhappiniess) %>%
   summarise(total = n()) %>%
-  mutate(percent = total/sum(total)*100) %>% 
+  mutate(percent = total/sum(total)*100) %>%
   filter(study_in_germany == "No" & (feeling_unhappiniess == 4 | feeling_unhappiniess == 5)) %>%
-  select(percent) %>% 
-  summarise_all(funs(sum)) %>% 
+  select(percent) %>%
+  summarise_all(funs(sum)) %>%
   mutate(
     percent = round(percent, digits = 2)
   )
 
 
-germany_students_graduation_effect = df_data %>% 
+germany_students_graduation_effect = df_data %>%
   group_by(study_in_germany, graduation_effect) %>%
   summarise(total = n()) %>%
-  mutate(percent = total/sum(total)*100) %>% 
+  mutate(percent = total/sum(total)*100) %>%
   filter(study_in_germany == "Yes" & graduation_effect == "Yes") %>%
-  select(percent) %>% 
-  summarise_all(funs(sum)) %>% 
+  select(percent) %>%
+  summarise_all(funs(sum)) %>%
   mutate(
     percent = round(percent, digits = 2)
   )
 
-germany_outside_students_graduation_effect = df_data %>% 
+germany_outside_students_graduation_effect = df_data %>%
   group_by(study_in_germany, graduation_effect) %>%
   summarise(total = n()) %>%
-  mutate(percent = total/sum(total)*100) %>% 
+  mutate(percent = total/sum(total)*100) %>%
   filter(study_in_germany == "No" & graduation_effect == "Yes") %>%
-  select(percent) %>% 
-  summarise_all(funs(sum)) %>% 
+  select(percent) %>%
+  summarise_all(funs(sum)) %>%
   mutate(
     percent = round(percent, digits = 2)
   )
@@ -618,10 +618,10 @@ While this analysis does not seal that students in Germany have faced many anxie
 # function for plotting facet bar graph with percentage
 
 plot_facet <- function(col1, col2,facet_lbl,x_title,y_title,plot_title) {
- df_data %>% 
+ df_data %>%
   group_by(.data[[col1]], .data[[col2]]) %>%
-  summarise(total = n()) %>% 
-  mutate(percent = total/sum(total)) %>% 
+  summarise(total = n()) %>%
+  mutate(percent = total/sum(total)) %>%
   ggplot(aes(x = .data[[col1]], y = percent))+
   geom_bar(
     aes(fill = .data[[col1]]), stat = "identity", color = "white",
@@ -640,7 +640,7 @@ plot_facet <- function(col1, col2,facet_lbl,x_title,y_title,plot_title) {
 #Plot1
 plot_facet("study_in_germany", "graduation_effect") +
   facet_wrap(~graduation_effect,
-             labeller = labeller(graduation_effect = grad.labs1)) + 
+             labeller = labeller(graduation_effect = grad.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Studying in Germany",
@@ -653,7 +653,7 @@ plot_facet("study_in_germany", "graduation_effect") +
 #Plot2
 plot_facet("study_in_germany", "results_better")+
   facet_wrap(~results_better,
-             labeller = labeller(results_better = result.labs1)) + 
+             labeller = labeller(results_better = result.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Studying in Germany ",
@@ -661,13 +661,13 @@ plot_facet("study_in_germany", "results_better")+
     title = "Relationship Between Students Studying in Germany & Outside in terms of Result",
     caption = "Figure 18"
   )
-   
+
 # In terms of job lost
 
 #Plot3
 plot_facet("study_in_germany", "job_lost")+
   facet_wrap(~job_lost,
-             labeller = labeller(job_lost = job.labs1)) + 
+             labeller = labeller(job_lost = job.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Job Lost",
@@ -681,7 +681,7 @@ plot_facet("study_in_germany", "job_lost")+
 #Plot4
 plot_facet("study_in_germany", "motivation")+
   facet_wrap(~motivation,
-             labeller = labeller(motivation = motv.labs1)) + 
+             labeller = labeller(motivation = motv.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Studying in Germany ",
@@ -695,7 +695,7 @@ plot_facet("study_in_germany", "motivation")+
 #Plot5
 plot_facet("study_in_germany", "internet")+
   facet_wrap(~internet,
-             labeller = labeller(internet = internet.labs1)) + 
+             labeller = labeller(internet = internet.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Studying in Germany ",
@@ -709,7 +709,7 @@ plot_facet("study_in_germany", "internet")+
 #Plot6
 plot_facet("study_in_germany", "financial_problem")+
   facet_wrap(~financial_problem,
-             labeller = labeller(financial_problem = finance.labs1)) + 
+             labeller = labeller(financial_problem = finance.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Studying in Germany ",
@@ -723,7 +723,7 @@ plot_facet("study_in_germany", "financial_problem")+
 #Plot7
 plot_facet("study_in_germany", "concentration")+
   facet_wrap(~concentration,
-             labeller = labeller(concentration = conc.labs1)) + 
+             labeller = labeller(concentration = conc.labs1)) +
     fill_palette("jco") +
   labs(
     x = "Studying in Germany ",
@@ -740,75 +740,75 @@ plot_facet("study_in_germany", "concentration")+
 
 
 
-  
+
 
 ## **Random Forrest**
 
 The function train() from Caret Package used for model buidling. Several functions from other R Packages are also used pre-processing, data wrangling and visualziations.
  It includes Tunning algorithm which helps us get better results and give is the freedom to tune more parameters in a better fashion. We tried to balance two main paramters
- i.e. mtry and ntree. mtry: Number of variable is randomly collected to be sampled at each split time and ntree: Number of branches will grow after each time split. 
- 
+ i.e. mtry and ntree. mtry: Number of variable is randomly collected to be sampled at each split time and ntree: Number of branches will grow after each time split.
+
  We trained 3 different model in get the best information out of the data. Following are the data modeling formulae:
- 
+
 **Model 1:** Was the student able to concerntrate on studies (concentration) as the dependent variable. Independent variables are:
-                  How much strain does a student have (education_strain), which country is the student studying in (country_study), 
-                  is the student getting enough sleep (sleep), the delay of the students graduation (graduation_effect), internet problems (internet), 
-                  did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside) and were there any financial 
+                  How much strain does a student have (education_strain), which country is the student studying in (country_study),
+                  is the student getting enough sleep (sleep), the delay of the students graduation (graduation_effect), internet problems (internet),
+                  did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside) and were there any financial
                   problems (financial_problem).
-                  
+
                   train(concentration ~ education_strain + country_study + sleep + graduation_effect +
                   internet + job_lost + stranded_outside + financial_problem
                 , data=so_training,  method= rf)
 
 **Model 2:** Did the result get better (results_better) as the dependent variable. Independent variables are:
                    How much strain does a student have (education_strain), is the student getting enough sleep (sleep), he delay of the students graduation (graduation_effect),
-                   did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside), internet problems (internet) and were there any financial 
+                   did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside), internet problems (internet) and were there any financial
                    problems (financial_problem).
-                   
- 
- 
-                  train( results_better ~ 
+
+
+
+                  train( results_better ~
                     education_strain  + sleep + graduation_effect +
                     internet + job_lost + stranded_outside + financial_problem
                   , data=so_training, method=rf)
-                  
-                  
+
+
 **Model 3:** How motivated does the student feel (motivation) as the dependent variable. Independent variables are:
                   How unhappy does the student feel (feeling_unhappiniess), is the student getting enough sleep (sleep),  he delay of the students graduation (graduation_effect),
                   was the student stranded outside germany (stranded_outside), internet problems (internet) and  did the student lost job due to covid-19 (job_lost).
- 
- 
+
+
                   train(motivation ~ feeling_unhappiniess + sleep + graduation_effect + stranded_outside + internet + job_lost
                  , data=so_training, method= rf)
-                 
+
   We compare two major aspects;
   1. Training and Testing accuracies for each model.
-  2. Training accuracies with Kappa values for each model. 
-  
-  
+  2. Training accuracies with Kappa values for each model.
+
+
   **THE GRAPHS:**
-  
-  The first scatter plot shows the camparison between the three models. Making Model 1 (Concerntration) to be the best modelled Independent variable, having explanation 
-  of just over 70% training accuracy and just under 45% of testing accuracy. The remaining two model are having different interpretation as the first one. 
-  
+
+  The first scatter plot shows the camparison between the three models. Making Model 1 (Concerntration) to be the best modelled Independent variable, having explanation
+  of just over 70% training accuracy and just under 45% of testing accuracy. The remaining two model are having different interpretation as the first one.
+
   The second scatter plot agaib shows the camparison between the three models, but this time it is Training Accuracies with Kappa Values. Model 1 (Concerntration)
   having describing more relevancy with Kappa value greater than 36%.
-  
-  
+
+
 ```{r random_forrest_model,warning=FALSE, message=FALSE, echo=FALSE}
 
-# Random  Forest Classification from the package is used. 
+# Random  Forest Classification from the package is used.
 
 set.seed(123)
 
-# dividing Testing and Training Data 
+# dividing Testing and Training Data
 init_split <-  initial_split(df_data,prop=3/4)
 so_training <- training(init_split)
 so_testing <- testing(init_split)
 
 # Setting Cross-Validation Parameter Control
-control_1 <- trainControl(method="repeatedcv", 
-                          number=10, 
+control_1 <- trainControl(method="repeatedcv",
+                          number=10,
                           repeats=3)
 
 
@@ -844,7 +844,7 @@ cm_fit.rf <- confusionMatrix(predictions_fit.rf, so_testing$concentration) #conf
 # evaluating model 2
 
 #fit.rf2 # model details
-predictions_fit.rf2 <- predict(fit.rf2, so_testing) 
+predictions_fit.rf2 <- predict(fit.rf2, so_testing)
 cm_fit.rf2 <- confusionMatrix(predictions_fit.rf2, so_testing$results_better) #confusion matrix
 #print(cm_fit.rf2)
 
@@ -863,7 +863,7 @@ training_accuracies <- list(m1 =max(fit.rf$results$Accuracy) , m2=max(fit.rf2$re
 training_kappa <- list(m1= max(fit.rf$results$Kappa), m2 = max(fit.rf2$results$Kappa), m3 = max(fit.rf3$results$Kappa))
 #print(training_kappa)
 testing_accuracies <- list(m1 = cm_fit.rf$overall[1] , m2 = cm_fit.rf2$overall[1] , m3= cm_fit.rf3$overall[1])
-#print(testing_accuracies) 
+#print(testing_accuracies)
 
 # making data frames to plot graphs
 table1 <- do.call(rbind, Map(data.frame, Training_Acc=training_accuracies, Testing_Acc=testing_accuracies))
@@ -873,7 +873,7 @@ table2 <- do.call(rbind, Map(data.frame, Training_Acc=training_accuracies, Train
 
 # Plotting Training vs Testing Accuracies
 ggplot(table1, aes(x=Testing_Acc, y=Training_Acc)) +
-  geom_point(shape=16, color="light blue", size = 8) + 
+  geom_point(shape=16, color="light blue", size = 8) +
   geom_text(label=rownames(table1)) +
   theme_bw() +
   labs(
@@ -885,7 +885,7 @@ ggplot(table1, aes(x=Testing_Acc, y=Training_Acc)) +
 
 # Plotting Training vs Training Kappa
 ggplot(table2, aes(x=Training_Acc, y=Training_Kappa_values)) +
-  geom_point(shape=16, color="light green", size = 8) + 
+  geom_point(shape=16, color="light green", size = 8) +
   geom_text(label=rownames(table2)) +
   theme_bw()+
   labs(
@@ -933,18 +933,18 @@ postResample(dfModelTest$results_better, preds2)
 totalAccuracy <- c()
 cv <- 10
 cvDivider <- floor(nrow(dfModel) / (cv+1))
- 
+
 #for (cv in seq(1:cv)) {
 #   assign chunk to data test
 #  dataTestIndex <- c((cv * cvDivider):(cv * cvDivider + cvDivider))
 #  dataTest <- dfModel[dataTestIndex,]
   # everything else to train
 #  dataTrain <- dfModel[-dataTestIndex,]
- 
-#  cylModel <- multinom(results_better~ study_in_germany + graduation_effect + motivation, data=dataTrain, maxit=1000, trace=T) 
- 
+
+#  cylModel <- multinom(results_better~ study_in_germany + graduation_effect + motivation, data=dataTrain, maxit=1000, trace=T)
+
 #  pred <- predict(model, newdata=dataTest, type="class")
- 
+
   #  classification error
 #  cv_ac <- postResample(dataTest$results_better, pred)[[1]]
 #  print(paste('Current Accuracy:',cv_ac,'for CV:',cv))
@@ -1038,7 +1038,7 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
 
 # **Sentiment Analysis**
 
-We have aimed at using text mining techniques using libraries and packages offered by R. From tm to tidyverse, tidytext, glue, wordcloud, dplyr we exploit all of this to understand sentiments behind textual data. 
+We have aimed at using text mining techniques using libraries and packages offered by R. From tm to tidyverse, tidytext, glue, wordcloud, dplyr we exploit all of this to understand sentiments behind textual data.
 Furthermore, study also aims to perform and visualise a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative, neutral to positive and feeling of unhappiness, or fear or trust etc.
 
 <!-- ## **Word Cloud** -->
@@ -1096,7 +1096,7 @@ Furthermore, study also aims to perform and visualise a sentiment analysis using
 # please note that different methods may have different scales
 #sentiment function for textual data columns with tokenization using Bing
 getSentiment_Func <- function(column_name) {
-  tidy_column <- df_data %>% 
+  tidy_column <- df_data %>%
     unnest_tokens(word, column_name)
   head(tidy_column)
   tidy_column %>%
@@ -1124,29 +1124,29 @@ df_sentiment = Reduce(function(x, y) merge(x, y, all=TRUE), list(
   AdditionalNotes_sentiment))
 
 
-#Most common positive and negative words and 
+#Most common positive and negative words and
 #positive vs. negative sentiments word cloud together
 getPosNegcount_Func <- function(column_name, plot_title) {
   tidy_column <- df_data %>%
     unnest_tokens(word, column_name)
-  
+
   bing_word_counts <- tidy_column %>%
     inner_join(get_sentiments("bing")) %>%
     count(word, sentiment, sort = TRUE) %>%
     ungroup()
 
-   tidy_column %>% 
+   tidy_column %>%
     inner_join(get_sentiments("bing"), "word") %>%
-    count(word, sentiment, sort = TRUE) %>% 
-    acast(word ~ sentiment, value.var = "n", fill = 0) %>% 
+    count(word, sentiment, sort = TRUE) %>%
+    acast(word ~ sentiment, value.var = "n", fill = 0) %>%
     comparison.cloud(colors = c("coral1", "chartreuse4"), max.words = 100)
-  
+
   bing_word_counts
-  
-#Bar chart for most common positive and negative words 
+
+#Bar chart for most common positive and negative words
   bing_word_counts %>%
     group_by(sentiment) %>%
-    slice_max(n, n = 10) %>% 
+    slice_max(n, n = 10) %>%
     ungroup() %>%
     mutate(word = reorder(word, n)) %>%
     ggplot(aes(n, word, fill = sentiment)) +
@@ -1157,10 +1157,10 @@ getPosNegcount_Func <- function(column_name, plot_title) {
          title = plot_title) +
     theme_bw()+
     theme(plot.title = element_text(color = "darkslateblue",hjust = 0.5, size = 22, face = "bold"))
-  
+
 
 }
-  
+
 
 
 getPosNegcount_Func("motivation_reason", "Variable: Motivation")
@@ -1203,12 +1203,11 @@ The sentiment analysis show that most of the words used throughout the questions
 
 We curated the survey questions based on our own experiences of being a student that has seen a shift of academic and professional ecosystem in the last 1.5 years. This inspired the study, and therefore we wanted to understand what the students have been feeling during this time, the significant concerns they have, what affected their study? Did they get better results? etc. The data was not only open-text questions but also likert scale method of scoring and categorical data etc. We understood the demographics of survey respondents, their age, location, etc.
 
-For future studies, we can incorporate further questions such as analysing in terms of their semesters, whether they or their loved ones were diagnosed with the Covid-19 or not.
+For future studies, we can incorporate further questions such as analysing in terms of their semesters, whether they or their loved ones were diagnosed with the Covid-19 or not, whether they need financial assistance in lockdown, whether they were unable to visit back home-country or hometown due to COVID-19 etc.
 
 
 **How did you answer the questions?**
 
-We started the basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stopword removal. We found answers to our research questions by performing a sentiment analysis on text data. We also tried to find a correlation between different variables. These were integral to find out whether each variable contributes to the other or not. We also ran ML models such as Logistic Regression to predict grades of Masters students. The most essential struggle for us was not having enough data. We highly emphasize future work where we can have a higher number of survey respondents - ideally more than 100, so we could have better training and test data split and offer more promising results of the study.
+We started the basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stop-word removal. We found answers to our research questions by performing a sentiment analysis on text data. We also tried to find a correlation between different variables. These were integral to find out whether each variable contributes to the other or not. We also ran ML models such as Logistic Regression to predict grades of Masters students. The most essential struggle for us was not having enough data. We highly emphasize future work where we can have a higher number of survey respondents - ideally more than 100, so we could have better training and test data split and offer more promising results of the study.
 
 # **References**
-
