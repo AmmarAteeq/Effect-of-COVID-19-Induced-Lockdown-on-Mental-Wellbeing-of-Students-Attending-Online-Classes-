@@ -10,7 +10,6 @@ output:
     toc_float: true 
     theme: readable
     highlight: tango
-runtime: shiny
 bibliography: citation.bib
 csl: ieee.csl
 ---
@@ -21,7 +20,6 @@ csl: ieee.csl
 ### Load Libraries
 knitr::opts_chunk$set(echo = TRUE)
 library(DT)
-library(shiny)
 library(knitr)
 library(kableExtra)
 library(tidyverse)
@@ -77,25 +75,25 @@ df_data = read_excel('A Short Survey About Online Studies And Its Effects (Respo
 
 # **Related Works**
 
-COVID-19 has had negative consequences on the planet for more than a year, ranging from economic downturns to high mortality tolls that have brought several nations and areas to their knees. We are currently witnessing its catastrophic impacts in the shape of second and third waves, which are claiming a large number of human lives every day in places like India.
+COVID-19 has had negative consequences on the planet for more than a year, ranging from economic downturns to high mortality tolls that have brought several nations and areas to their knees. We are currently witnessing its catastrophic impacts in the shape of second and third waves, claiming a large number of human lives every day in places like India.
 
 There have been numerous studies on the effects of COVID-19, its prediction, symptom analysis in various bodies, academic years across institutes, and their preventive measures in the spirit of continuing studies for students in countries such as the United States, the United Kingdom, and European countries that experience a large number of international students every six months.
 
 Yusen Zhai, Xue Du, 2020 research [@article] is one of a few publications that has attempted to determine the impact of COVID-19 on the mental health of college students in the United States.
 
-COVID-19 will have ongoing critical repercussions on college students, according to the report, and "it is thus vital for universities to develop awareness of students' mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis."
+COVID-19 will have ongoing critical repercussions on college students, according to the report, and "it is thus vital for universities to develop an awareness of students' mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis."
 
-Our objective is to not only assist in the discovery of the consequences and worries that university students in Germany may have experienced, but also to assist in the development of recommendations that can help shape the future after the debate.
+Our objective is to assist in the discovery of the consequences and worries that university students in Germany may have experienced and assist in the development of recommendations that can help shape the future after the debate.
 
 # **Motivation & Overview**
 
-**Objective 1:** The primary objective of the study is to find out a relation between COVID-19 Lockdown effect on mental health of students who have been taking online semesters mainly in Summer and Winter semesters of 2020/2021. When we talk about correlation, what we mean is to find out whether there was a pattern for students to struggle with online study schedules. The reason for this correlation is the potential behind what students have gone through during the year of confinement to dorms or shared homespaces and whether good or bad, effect could be found on their mental health in the result.
+**Objective 1:** The study's primary objective is to find out a relation between the COVID-19 Lockdown effect on the mental health of students who have been taking online semesters, mainly in the Summer and Winter semesters of 2020/2021. When we talk about correlation, we mean to find out whether there was a pattern for students to struggle with online study schedules. This correlation is the potential behind what students have gone through during the year of confinement to dorms or shared home spaces, and whether good or bad, the effect could be found on their mental health as a result.
 
-The aspects that should help us find this correlation should be the factors such as semester of the student, demographics such as whether they were stranded in their home country or staying in the dorm room, the communication process of steps to attending online classes by the institute, their internet connection as well their grade score quality. Furthermore, we would like to accommodate a subset of the GHQ-12 questionnaire where we ask the students questions around their concentration span, capability of making decisions, feeling of unhappiness or depression, sleep deprivation, constant feeling of stress and the financial situation of the students during this period of time etc.
+The aspects that should help us find this correlation should be the factors such as semester of the student, demographics such as whether they were stranded in their home country or staying in the dorm room, the communication process of steps to attending online classes by the institute, their internet connection as well their grade score quality. Furthermore, we would like to accommodate a subset of the GHQ-12 questionnaire where we ask the students questions about their concentration span, the capability of making decisions, feeling of unhappiness or depression, sleep deprivation, constant feeling of stress, and the financial situation of the students during this period, etc.
 
-**Objective 2:** The second objective of the study is to perform and visualize a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative,neutral to positive and feeling of happiness, or fear or trust etc.
+**Objective 2:** The second objective of the study is to perform and visualize a sentiment analysis using text data gathered using the survey and help find out students' sentiments throughout their online study period that they express. For example, sentiment polarity scores from negative, neutral to positive, happiness, fear or trust, etc.
 
-**Objective 3:** Our third objective is to aim at predicting the grades of the students who are confined in similar demographic situations as well as share somewhat similar sentiments. This study in no way will predict any student’s depression but only trying to understand whether there are adverse effects on students who have gone ahead for a year with little to no social interaction and at the same time had to go through a strenuous schedule of studies and/or part time jobs.
+**Objective 3:** Our third objective aims to predict the grades of the students who are confined in similar demographic situations and share somewhat identical sentiments. This study will not indicate any student’s depression but only trying to understand whether there are adverse effects on students who have gone ahead for a year with little to no social interaction. At the same time had to go through a strenuous schedule of studies and/or part-time jobs.
 
 **Questionnaire:**
 [**_A Short Survey About Online Studies And Its Effects_**](https://docs.google.com/forms/d/1iVyj8rxLUdoJLlmdf9S0So3_HSKjNUd31Zn_Pv5r2Pk/edit)
@@ -106,7 +104,7 @@ The aspects that should help us find this correlation should be the factors such
 
 ## **Data Cleaning & Manipulation**
 
-Data cleaning wasn't as big an issue for such a dataset. Given the fact that the answers were fixed options and required, there was no NAs. Except in the questions which required reasoning. It made no sense to remove those rows as we would be losing out on a lot of information if we removed all NAs for those type of questions.
+Data cleaning wasn't as big an issue for such a dataset. Given the fact that the answers were fixed options and required, there were no NAs. Except in the questions which required reasoning. It made no sense to remove those rows as we would be losing out on a lot of information if we pulled all NAs for those types of questions.
 
 Furthermore, all the categorical answers were converted to factor variable with consistent levels (No-Maybe-Yes).
 
@@ -286,14 +284,16 @@ fig
 
 ## **World Map of Students Nationalities**
 
-```{r worldmap,warning=FALSE, message=FALSE, include=FALSE }
+Most of the students are from the subcontinent region mainly Pakistan & India.
+
+```{r worldmap,warning=FALSE, message=FALSE, echo=FALSE, fig.width= 12}
 
 # Count students nationalities
 df_country_count = df_data %>% 
   group_by(country) %>% 
   count(sort = TRUE)
 
-df_country_count%>%
+df_country_count_table = df_country_count%>%
   rename(
     Country = country,
     Count = n
@@ -309,66 +309,75 @@ df_country_count$count_group <- cut(df_country_count$n,
 
 world_map <- map_data(map = "world")
 
-world_plot = ggplot(df_country_count) +
+ ggplot(df_country_count) +
   geom_map(aes(map_id = country, fill = fct_rev(count_group)), map = world_map) +
   geom_polygon(data = world_map, aes(x = long, y = lat, group = group), colour = 'black', fill = NA) +
   expand_limits(x = world_map$long, y = world_map$lat) +
   scale_fill_manual(name = "Counts", values = rev(brewer.pal(5, name = 'Dark2'))) +
   theme_void() +
   coord_fixed()
-```
-
-```{r worldmap_plot, echo=FALSE, fig.width= 12}
-
-renderPlot(world_plot)
 
 ```
+
+<!-- ```{r worldmap_plot, echo=FALSE, fig.width= 12, include=FALSE} -->
+
+<!-- renderPlot(world_plot) -->
+
+<!-- ``` -->
 
 # **Exploratory Analysis**
 
+This section will look into the basic distribution of data amongst the different variables. This will show a glimpse of the answers of the students in terms of the selected variables.
 
 ```{r frequency_plot,warning=FALSE, message=FALSE, echo=FALSE}
 
 # Function for bar plot for one variable
-plot_freq <- function(col1,x_title,y_title,plot_title) {
+plot_freq <- function(col1,x_title,y_title,plot_title, plot_caption) {
  df_data %>%
   ggplot(aes(x = .data[[col1]])) +
   geom_bar(fill = "steelblue") + 
   labs(
     x = x_title,
     y = y_title,
-    title = plot_title
+    title = plot_title,
+    caption = plot_caption
   )+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5))
 }
 
-plot_freq("motivation","Student Motivated For Online Classes","Number of Students","Motivation For Online Classes" )
+plot_freq("motivation","Student Motivated For Online Classes","Number of Students","Motivation For Online Classes", "Figure 1" )
 
-plot_freq("sleep","Sleep Disturbed During Online Classes","Number of Students","Sleep Disturbance During Online Classes" )
+plot_freq("sleep","Sleep Disturbed During Online Classes","Number of Students","Sleep Disturbance During Online Classes", "Figure 2" )
 
-plot_freq("education_strain","Education Strain During Online Classes","Number of Students","Strain During Online Classes (1: Low, 5: High)" )
+plot_freq("education_strain","Education Strain During Online Classes","Number of Students","Strain During Online Classes (1: Low, 5: High)", "Figure 3" )
 
-plot_freq("graduation_effect","Graduation Delayed","Number of Students","Plot for Number of Students with Studies Delayed" )
+plot_freq("graduation_effect","Graduation Delayed","Number of Students","Plot for Number of Students with Studies Delayed", "Figure 4" )
 
-plot_freq("feeling_unhappiniess","Feeling of Unhappiness","Number of Students","Feeling of Unhappiness During Online Classes (1: Low, 5: High)" )
+plot_freq("feeling_unhappiniess","Feeling of Unhappiness","Number of Students","Feeling of Unhappiness During Online Classes (1: Low, 5: High)", "Figure 5" )
 
-plot_freq("insititute_assistance","University Assistance","Number of Students","University Assistance To Students (1: Low, 5: High)" )
+plot_freq("insititute_assistance","University Assistance","Number of Students","University Assistance To Students (1: Low, 5: High)", "Figure 6" )
 
-plot_freq("internet","Internet Problem","Number of Students","Internet Caused Problem During Online Classes" )
+plot_freq("internet","Internet Problem","Number of Students","Internet Caused Problem During Online Classes", "Figure 7" )
 
-plot_freq("full_courses_taken","Full Courses Taken","Number of Students","Students Able To Take Full Courses As Wanted" )
+plot_freq("full_courses_taken","Full Courses Taken","Number of Students","Students Able To Take Full Courses As Wanted", "Figure 8" )
 
-plot_freq("stranded_outside","Sleep Disturbance During Online Classes","Number of Students","Number of Students Stranded Outside the Country of Study" )
+plot_freq("stranded_outside","Sleep Disturbance During Online Classes","Number of Students","Number of Students Stranded Outside the Country of Study", "Figure 9" )
 
-plot_freq("financial_problem","Financial Problem","Number of Students","Financial Strain Amongst Students" )
+plot_freq("financial_problem","Financial Problem","Number of Students","Financial Strain Amongst Students", "Figure 10" )
 
-plot_freq("living_setup","Type of Living","Number of Students","Living Setup of the Students" )
+plot_freq("living_setup","Type of Living","Number of Students","Living Setup of the Students", "Figure 11" )
 
 ```
 
 
 ## **Correlations Between Variables**
+
+This section will correlate two variables. This will give a better insight how some factors have an effect on the other. Analysis show that when the concentration and the motivation of the student have been bad, the grades of the student have been bad as well. Which is an obvious statement, but it is still important to know this fact as it also gives an indication of the validity of the answers of the students.
+
+Analysis show that students who are living in shared apartments have been the most unhappy during online studies. We initially predicted the single apartment students to be unhappy because of lonliness. This does not mean it is soley because of this reason, but it is a major factor.
+
+Losing job also leads to unhappiness which can be seen in the figure.
 
 ```{r correlation_plots,warning=FALSE, message=FALSE, echo=FALSE, fig.width=10, fig.height=6}
 
@@ -434,7 +443,8 @@ plot_freq_correlation("results_better","concentration")+
   labs(
     x = "Results Better",
     y = "Number of Students",
-    title = "Relationship Between Concentration & Results"
+    title = "Relationship Between Concentration & Results",
+    caption = "Figure 12"
   )+
   scale_x_discrete(breaks=c("No","Maybe","Yes"),
                      labels=c("Worse Result","Same or Uncertain", "Better Result"))+
@@ -451,7 +461,8 @@ plot_freq_correlation("results_better","motivation")+
   labs(
     x = "Results Better",
     y = "Number of Students",
-    title = "Relationship Between Motivation & Results"
+    title = "Relationship Between Motivation & Results",
+    caption = "Figure 13"
   )+
   scale_x_discrete(breaks=c("No","Maybe","Yes"),
                      labels=c("Worse Result","Same or Uncertain", "Better Result"))+
@@ -468,7 +479,8 @@ plot_freq_correlation("feeling_unhappiniess","living_setup")+
   labs(
     x = "Level of Unhappiness (1:Low, 5:High)",
     y = "Number of Students",
-    title = "Relationship Between Unhappiness Level & Living Setup"
+    title = "Relationship Between Unhappiness Level & Living Setup",
+    caption = "Figure 14"
   )+
   facet_wrap(~living_setup,
              labeller = labeller(living_setup = living.labs1)) + 
@@ -483,7 +495,8 @@ plot_freq_correlation("feeling_unhappiniess","job_lost")+
   labs(
     x = "Level of Unhappiness (1:Low, 5:High)",
     y = "Number of Students",
-    title = "Relationship Between Job Lost & Unhappiness Level"
+    title = "Relationship Between Job Lost & Unhappiness Level",
+    caption = "Figure 15"
   )+
   facet_wrap(~job_lost,
              labeller = labeller(job_lost = job.labs1)) + 
@@ -498,7 +511,8 @@ plot_freq_correlation("feeling_unhappiniess","stranded_outside")+
   labs(
     x = "Level of Unhappiness (1:Low, 5:High)",
     y = "Number of Students",
-    title = "Relationship Between Standed Outside Country of Study & Unhappiness Level"
+    title = "Relationship Between Standed Outside Country of Study & Unhappiness Level",
+    caption = "Figure 16"
   )+
   facet_wrap(~stranded_outside,
              labeller = labeller(stranded_outside = stranded.labs1)) + 
@@ -577,7 +591,7 @@ germany_outside_students_graduation_effect = df_data %>%
 ## **Germany Specific**
 
 
-It seems rather logical to look a little deeper into just the students studying in Germany. Upon analysis it was found that none of the students studying in Germany are actually living with their families.
+It seems rather logical to look a little deeper into just the students studying in Germany. Upon analysis, it was found that none of the students studying in Germany are living with their families.
 
 Out of `r germany_students$total` students who study in Germany, `r germany_students_result_no$total` have said their results have gotten worse and `r germany_students_result_maybe$total` say 'maybe'. That is very high percentage of people compared to the people not living in Germany.
 
@@ -587,6 +601,14 @@ None of the students outside Germany lost their jobs during the pandemic, wherea
 
 
 Almost `r germany_students_graduation_effect$percent`% of students studying in Germany faced a delay in their study schedule compared to only `r germany_outside_students_graduation_effect$percent`% for students studying outside.
+
+The students outside of Germany faced internet problems much more than the students in Germany. The reason for it can be down to the fact that most of the students are from the subcontinent region where it is not so uncommon to have electricity or internet issues.
+
+Students in Germany faced financial problems much more than the students outside Germany. It would be interesting to see for future analysis the semester number of the students. New international students must submit a minimum amount in their banks, which is sufficient for one year. Therefore, it is just a prediction that most of these students facing financial problems are semester two onwards or have been in Germany for more than a year.
+
+Concentration levels have also been harmful during the online studies for German students.
+
+While this analysis does not seal that students in Germany have faced many anxiety-stricken online studies, it indeed points in that direction. It would be more conclusive with an equal number of students from within and outside Germany. Only then can it be said with much more conviction.
 
 
 
@@ -623,7 +645,8 @@ plot_facet("study_in_germany", "graduation_effect") +
   labs(
     x = "Studying in Germany",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Graduation Delay"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Graduation Delay",
+    caption = "Figure 17"
   )
 
 
@@ -635,7 +658,8 @@ plot_facet("study_in_germany", "results_better")+
   labs(
     x = "Studying in Germany ",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Result"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Result",
+    caption = "Figure 18"
   )
    
 # In terms of job lost
@@ -648,7 +672,8 @@ plot_facet("study_in_germany", "job_lost")+
   labs(
     x = "Job Lost",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Losing Job"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Losing Job",
+    caption = "Figure 19"
   )
 
 
@@ -661,7 +686,8 @@ plot_facet("study_in_germany", "motivation")+
   labs(
     x = "Studying in Germany ",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Motivation"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Motivation",
+    caption = "Figure 20"
   )
 
 
@@ -674,7 +700,8 @@ plot_facet("study_in_germany", "internet")+
   labs(
     x = "Studying in Germany ",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Internet Problems"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Internet Problems",
+    caption = "Figure 21"
   )
 
 
@@ -687,7 +714,8 @@ plot_facet("study_in_germany", "financial_problem")+
   labs(
     x = "Studying in Germany ",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Financial Problems"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Financial Problems",
+    caption = "Figure 22"
   )
 
 
@@ -700,7 +728,8 @@ plot_facet("study_in_germany", "concentration")+
   labs(
     x = "Studying in Germany ",
     y = "Number of Students (In percentage)",
-    title = "Relationship Between Students Studying in Germany & Outside in terms of Concentration"
+    title = "Relationship Between Students Studying in Germany & Outside in terms of Concentration",
+    caption = "Figure 23"
   )
 
 ```
@@ -766,7 +795,7 @@ The function train() from Caret Package used for model buidling. Several functio
   having describing more relevancy with Kappa value greater than 36%.
   
   
-```{r random_forrest_model,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+```{r random_forrest_model,warning=FALSE, message=FALSE, echo=FALSE}
 
 # Random  Forest Classification from the package is used. 
 
@@ -784,8 +813,8 @@ control_1 <- trainControl(method="repeatedcv",
 
 
 # Checking Dimensions of Training and Testing sets
-dim(so_testing)
-dim(so_training)
+#dim(so_testing)
+#dim(so_training)
 
 
 # building model 1
@@ -807,39 +836,39 @@ fit.rf3 <- train(motivation ~ feeling_unhappiniess   + sleep + graduation_effect
 # estimate Random Forrest on the testing dataset
 
 # evaluating model 1
-fit.rf # model details
+#fit.rf # model details
 predictions_fit.rf <- predict(fit.rf, so_testing)
 cm_fit.rf <- confusionMatrix(predictions_fit.rf, so_testing$concentration) #confusion matrix
-print(cm_fit.rf)
+#print(cm_fit.rf)
 
 # evaluating model 2
 
-fit.rf2 # model details
+#fit.rf2 # model details
 predictions_fit.rf2 <- predict(fit.rf2, so_testing) 
 cm_fit.rf2 <- confusionMatrix(predictions_fit.rf2, so_testing$results_better) #confusion matrix
-print(cm_fit.rf2)
+#print(cm_fit.rf2)
 
 # evaluating model 3
-fit.rf3 # model details
+#fit.rf3 # model details
 predictions_fit.rf3 <- predict(fit.rf3, so_testing)
 cm_fit.rf3 <- confusionMatrix(predictions_fit.rf3, so_testing$motivation) #confusion matrix
-print(cm_fit.rf3)
+#print(cm_fit.rf3)
 
 
 # comparison of models
 
 # making tables for extracted values
 training_accuracies <- list(m1 =max(fit.rf$results$Accuracy) , m2=max(fit.rf2$results$Accuracy), m3= max(fit.rf3$results$Accuracy))
-print(training_accuracies)
+#print(training_accuracies)
 training_kappa <- list(m1= max(fit.rf$results$Kappa), m2 = max(fit.rf2$results$Kappa), m3 = max(fit.rf3$results$Kappa))
-print(training_kappa)
+#print(training_kappa)
 testing_accuracies <- list(m1 = cm_fit.rf$overall[1] , m2 = cm_fit.rf2$overall[1] , m3= cm_fit.rf3$overall[1])
-print(testing_accuracies) 
+#print(testing_accuracies) 
 
 # making data frames to plot graphs
 table1 <- do.call(rbind, Map(data.frame, Training_Acc=training_accuracies, Testing_Acc=testing_accuracies))
 table2 <- do.call(rbind, Map(data.frame, Training_Acc=training_accuracies, Training_Kappa_values=training_kappa))
-print(table1)
+#print(table1)
 
 
 # Plotting Training vs Testing Accuracies
@@ -849,7 +878,8 @@ ggplot(table1, aes(x=Testing_Acc, y=Training_Acc)) +
   theme_bw() +
   labs(
     x = "Testing Accuracies",
-    y = "Testubg Kappa Values"
+    y = "Testubg Kappa Values",
+    caption = "Figure 24"
   )
 
 
@@ -860,7 +890,8 @@ ggplot(table2, aes(x=Training_Acc, y=Training_Kappa_values)) +
   theme_bw()+
   labs(
     x = "Training Accuracies",
-    y = "Training Kappa Values"
+    y = "Training Kappa Values",
+    caption = "Figure 25"
   )
 
 ```
@@ -927,6 +958,8 @@ cm = table(predict(model), dfModelTest$results_better)
 
 Since the target variable was categorical with 3 levels ('Yes' 'No' 'Maybe'). Even though the choice for Logistic regression model was obvious, it was tricky to do it for 3 levels. This is where multinomial logistic regression comes into play. It considers more than 2 levels for the outcome variable as opposed to the standard glm funcion which is used for binomial variable type.
 
+We looked into the method of encoding our variable into '0' '1' '2' , but given the fact that 2 of the variables specifically 'education_strain' & 'feeling_unhappiness' had 5 levels. The encoding didn't make sense with unequal levels. So we proceeded with the factor variables.
+
 The multinom function from the nnet package will be used to estimate a multinomial logistic regression model. Functions from other R packages can also be used to perform multinomial regression. We chose the multinom function since it does not require data reshaping (as the mlogit package does) and it closely mirrors Hilbe's Logistic Regression Models sample code. Multinomial logistic regression is a straightforward extension of binary logistic regression that allows for the inclusion of more than two categories of the dependent or outcome variable. Our model is run using **Multinom**.
 
 *model <- multinom( results_better ~ study_in_germany + graduation_effect + job_lost , data = dfModelTest)*
@@ -943,11 +976,13 @@ We run the summary of the model and look at it's interpration:
 **Accuracy, Kappa & Missclassification**
 
 We use the postResample function from caret to assess the model's accuracy It employs the mean squared error and R-squared for numeric vectors and the overall agreement rate and Kappa for factors.
+round(x, digits = 0)
 
 
-**Accuracy & Kappa:**
+**Accuracy & Kappa:** `r round(postResample(dfModelTest$results_better, preds2), digits = 2)`
 
-**The misclassification rate is:** `r 1-sum(diag(cm)/sum(cm))`
+
+**The misclassification rate is:** `r round(1-sum(diag(cm)/sum(cm)), digits = 2)`
 
 
 ```{r confusion_matrix ,warning=FALSE, message=FALSE, echo=FALSE}
@@ -959,10 +994,10 @@ cm %>%
   add_header_above(c(" ", "Actual" = 3))
 
 
-postResample(dfModelTest$results_better, preds2)
- 
+round(postResample(dfModelTest$results_better, preds2), digits = 2)
+
 # Misclassification rate
-1-sum(diag(cm)/sum(cm))
+round(1-sum(diag(cm)/sum(cm)), digits = 2)
 
 # correct prediction per group
 n = table(dfModelTest$results_better)
@@ -975,7 +1010,7 @@ cm/colSums(cm)
 
 **Multinomial Logistic Model Plot**
 
-The graph shows the prediction probabily that the person would get bad result with the actual classification specified by the 3 different colors. It shows that the probability gets better when there are actual bad results, the model predicts those instances with a much higher confidence. The biggest constraint is the lack of data, with higher sample size, the prediction will be a lot better. With higher sample size, cross validation can be used which would make the model more accurate
+The graph shows the prediction probabily that the person would get bad result with the actual classification specified by the 3 different colors. It shows that the probability gets better when there are actual bad results, the model predicts those instances with a much higher accuracy. The biggest constraint is the lack of data, with higher sample size, the prediction will be a lot better. With higher sample size, cross validation can be used which would make the model more accurate.
 
 
 ```{r logistic_model_plot,warning=FALSE, message=FALSE, echo=FALSE}
@@ -991,7 +1026,8 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
   geom_point(aes(color = results_better), alpha=1, shape=4, stroke=2) +
   labs(
     x = "Index",
-    y = "Predicted Probability of getting bad results"
+    y = "Predicted Probability of getting bad results",
+    caption = "Figure 26"
   )+
   theme_bw()+
   scale_y_continuous(labels=scales::percent) +
@@ -1005,52 +1041,53 @@ ggplot(data = predicted_data, aes(x=rank, y=probabiliy_of_grade_better.No)) +
 We have aimed at using text mining techniques using libraries and packages offered by R. From tm to tidyverse, tidytext, glue, wordcloud, dplyr we exploit all of this to understand sentiments behind textual data. 
 Furthermore, study also aims to perform and visualise a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative, neutral to positive and feeling of unhappiness, or fear or trust etc.
 
-## **Word Cloud**
-```{r wordcloud,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+<!-- ## **Word Cloud** -->
 
-word_count_func <- function(column_name) {
-  
-  corpus = Corpus(VectorSource(df_data[column_name]))
-  corpus = tm_map(corpus, content_transformer(tolower))
-  corpus = tm_map(corpus, removeNumbers)
-  corpus = tm_map(corpus, removeWords, stopwords("english"))
-  corpus = tm_map(corpus, removePunctuation)
-  corpus = tm_map(corpus, stripWhitespace)
-  
-  tdm = TermDocumentMatrix(corpus)
-  m = as.matrix(tdm)
-  v = sort(rowSums(m), decreasing = TRUE)
-  d = data.frame(word = names(v),freq = v)
-  
-  wordcloud(d$word, d$freq, random.order = FALSE,
-            rot.per = 0.3, scale = c(4,.5),
-            colors = brewer.pal(8,"Dark2"),main=column_name, max.words = 200, min.freq = 2)
-  
-  findFreqTerms(tdm, lowfreq = 2)
-  
-  barplot(d[1:10,]$freq, las = 2, names.arg = d[1:10,]$word,
-          col ="pink", main ="Most frequent words",
-          ylab = "Word frequencies")
-  
-  findAssocs(tdm, terms = c("online","classes","different"), corlimit = 0.10)			
-  # Find associations for words that occur at least 3 times
-  #findAssocs(tdm, terms = findFreqTerms(tdm, lowfreq = 3), corlimit = 0.25)
-}
+<!-- ```{r wordcloud,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE} -->
 
-fluidRow(
-   column(6,
-selectInput(
-  inputId = 'PlotColumn',
-  label = 'Select a variable from the dataset',
-  choices = c('motivation_reason','concentration_reason', 'sleep_reason','graduation_effect_reason','feeling_unhappiness_reason','internet_reason','full_courses_taken_reason', 'stranded_outside_cope','financial_problem_affect','additional_notes')
-)
-)
-)
-```
+<!-- word_count_func <- function(column_name) { -->
 
-```{r wordcloud_plot,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
-renderPlot(word_count_func(input$PlotColumn))
-```
+<!--   corpus = Corpus(VectorSource(df_data[column_name])) -->
+<!--   corpus = tm_map(corpus, content_transformer(tolower)) -->
+<!--   corpus = tm_map(corpus, removeNumbers) -->
+<!--   corpus = tm_map(corpus, removeWords, stopwords("english")) -->
+<!--   corpus = tm_map(corpus, removePunctuation) -->
+<!--   corpus = tm_map(corpus, stripWhitespace) -->
+
+<!--   tdm = TermDocumentMatrix(corpus) -->
+<!--   m = as.matrix(tdm) -->
+<!--   v = sort(rowSums(m), decreasing = TRUE) -->
+<!--   d = data.frame(word = names(v),freq = v) -->
+
+<!--   wordcloud(d$word, d$freq, random.order = FALSE, -->
+<!--             rot.per = 0.3, scale = c(4,.5), -->
+<!--             colors = brewer.pal(8,"Dark2"),main=column_name, max.words = 200, min.freq = 2) -->
+
+<!--   findFreqTerms(tdm, lowfreq = 2) -->
+
+<!--   barplot(d[1:10,]$freq, las = 2, names.arg = d[1:10,]$word, -->
+<!--           col ="pink", main ="Most frequent words", -->
+<!--           ylab = "Word frequencies") -->
+
+<!--   findAssocs(tdm, terms = c("online","classes","different"), corlimit = 0.10)			 -->
+<!--   # Find associations for words that occur at least 3 times -->
+<!--   #findAssocs(tdm, terms = findFreqTerms(tdm, lowfreq = 3), corlimit = 0.25) -->
+<!-- } -->
+
+<!-- fluidRow( -->
+<!--    column(6, -->
+<!-- selectInput( -->
+<!--   inputId = 'PlotColumn', -->
+<!--   label = 'Select a variable from the dataset', -->
+<!--   choices = c('motivation_reason','concentration_reason', 'sleep_reason','graduation_effect_reason','feeling_unhappiness_reason','internet_reason','full_courses_taken_reason', 'stranded_outside_cope','financial_problem_affect','additional_notes') -->
+<!-- ) -->
+<!-- ) -->
+<!-- ) -->
+<!-- ``` -->
+
+<!-- ```{r wordcloud_plot,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE} -->
+<!-- renderPlot(word_count_func(input$PlotColumn)) -->
+<!-- ``` -->
 
 
 ```{r sentiment_analysis,warning=FALSE, message=FALSE, echo=FALSE }
@@ -1144,25 +1181,34 @@ ggplot(data=df_sentiment, aes(x=columnName, y=sentiment, fill=columnName)) +
   theme_bw()+
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())+
+        axis.ticks.x=element_blank(),
+        plot.title = element_text(color = "darkslateblue", size = 18, face = "bold"))+
   guides(fill=guide_legend(title="Variable Name")) +
   labs(
-    title = "Sentiment by Counting Positive & Negative Words"
+    title = "Sentiment by Counting Positive & Negative Words",
+    caption = "Figure 27"
   )
 
 
 ```
 
+
+The sentiment analysis show that most of the words used throughout the questions had negative inclination. Only two columns ('motivation_reason', 'addional_notes') had an overall positive sentiment.
+
+
+
 # **Final Analysis**
 
 **What did you learn about the data?**
 
-We curated the survey questions based on our own experiences of being a student that has seen a shift of academic and professional ecosystem in the last 1.5 years. This inspired the study and therefore we wanted to understand what the students have been feeling during this time, the major concerns they have, what affected their study? Did they get better results? etc. The data was not only open-text questions but also likert scale method of scoring as well as categorical data etc. We understood the demographics of survey respondents, their age, location etc.
+We curated the survey questions based on our own experiences of being a student that has seen a shift of academic and professional ecosystem in the last 1.5 years. This inspired the study, and therefore we wanted to understand what the students have been feeling during this time, the significant concerns they have, what affected their study? Did they get better results? etc. The data was not only open-text questions but also likert scale method of scoring and categorical data etc. We understood the demographics of survey respondents, their age, location, etc.
+
+For future studies, we can incorporate further questions such as analysing in terms of their semesters, whether they or their loved ones were diagnosed with the Covid-19 or not.
 
 
 **How did you answer the questions?**
 
-We started a basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stopword removal. We found answers of our research questions by performing a sentiment analysis on text data. We also tried to find correlation between different variables. These were integral to find out whether each variable contribute to other or not. We also ran ML models such as Logistic Regression in order to predict grades of Masters students. The most essential struggle for us was having not enough data. We highly emphasis on future work where we can have higher number of survey respondents - ideally more than 100 so we could have a better training and test data split and offer more promising results of the study.
+We started the basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stopword removal. We found answers to our research questions by performing a sentiment analysis on text data. We also tried to find a correlation between different variables. These were integral to find out whether each variable contributes to the other or not. We also ran ML models such as Logistic Regression to predict grades of Masters students. The most essential struggle for us was not having enough data. We highly emphasize future work where we can have a higher number of survey respondents - ideally more than 100, so we could have better training and test data split and offer more promising results of the study.
 
-# **REFERENCES**
+# **References**
 
