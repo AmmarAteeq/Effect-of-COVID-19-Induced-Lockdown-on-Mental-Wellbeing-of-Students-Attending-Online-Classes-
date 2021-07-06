@@ -70,6 +70,8 @@ options(max.print=1000000)
 
 #Datasets
 df_data = read_excel('A Short Survey About Online Studies And Its Effects (Responses).xlsx')
+df_data_questions = read_excel('A Short Survey About Online Studies And Its Effects (Responses).xlsx')
+
 ```
 
 
@@ -285,7 +287,6 @@ fig
 ## **World Map of Students Nationalities**
 
 Most of the students are from the subcontinent region mainly Pakistan & India.
-
 ```{r worldmap,warning=FALSE, message=FALSE, echo=FALSE, fig.width= 12}
 
 # Count students nationalities
@@ -377,7 +378,7 @@ This section will correlate two variables. This will give a better insight how s
 
 Analysis show that students who are living in shared apartments have been the most unhappy during online studies. We initially predicted the single apartment students to be unhappy because of lonliness. This does not mean it is soley because of this reason, but it is a major factor.
 
-Losing job also leads to unhappiness which can be seen in the figure.
+Losing job also leads to unhappiness which can be seen in figure 15.
 
 ```{r correlation_plots,warning=FALSE, message=FALSE, echo=FALSE, fig.width=10, fig.height=6}
 
@@ -1190,6 +1191,9 @@ ggplot(data=df_sentiment, aes(x=columnName, y=sentiment, fill=columnName)) +
   )
 
 
+
+
+
 ```
 
 
@@ -1209,5 +1213,19 @@ For future studies, we can incorporate further questions such as analysing in te
 **How did you answer the questions?**
 
 We started the basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stop-word removal. We found answers to our research questions by performing a sentiment analysis on text data. We also tried to find a correlation between different variables. These were integral to find out whether each variable contributes to the other or not. We also ran ML models such as Logistic Regression to predict grades of Masters students. The most essential struggle for us was not having enough data. We highly emphasize future work where we can have a higher number of survey respondents - ideally more than 100, so we could have better training and test data split and offer more promising results of the study.
+
+
+# **Questionnaire**
+
+The following are the list of questions used in our survery:
+
+```{r questionnaire,warning=FALSE, message=FALSE, echo=FALSE }
+
+dt_questions = colnames(df_data_questions[-2])
+
+kbl(dt_questions) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+
+```
 
 # **References**
