@@ -12,7 +12,6 @@ Please do not forget to download below files in your system folder where .rmd is
 1. ieee.csl
 2. citation.bibliography
 3. Survey and Survey Questions excel sheets
-4. covid19.jfif
 
 
 Our study's website is on the url -> https://sidraaaziz.wixsite.com/projectpandemic
