@@ -1,6 +1,5 @@
 ---
-title: |
-   ![](covid19.jfif){width=550px style="display: block; margin:0 auto"}
+title: "Effect of COVID-19 Induced Lockdown on Mental Wellbeing of Students Attending Online Classes"
 output:
   html_document:
     df_print: paged
@@ -20,8 +19,6 @@ csl: ieee.csl
 ```{r setup, include=FALSE}
 ### Load Libraries
 knitr::opts_chunk$set(echo = TRUE)
-library('e1071')
-library(randomForest)
 library(DT)
 library(knitr)
 library(kableExtra)
@@ -53,12 +50,13 @@ library(rsample)
 library(recipes)
 library(ranger)
 library("reshape2")
+library('e1071')
+library(randomForest)
 
 
 
 ```
 
-# **Effect of COVID-19 Induced Lockdown on Mental Wellbeing of Students Attending Online Classes ** {-} 
 
 **By:**
 
@@ -82,11 +80,11 @@ df_data_questions = read_excel('A Short Survey About Online Studies And Its Effe
 
 COVID-19 has had negative consequences on the planet for more than a year, ranging from economic downturns to high mortality tolls that have brought several nations and areas to their knees. We are currently witnessing its catastrophic impacts in the shape of second and third waves, claiming a large number of human lives every day in places like India.
 
-There have been numerous studies on the effects of COVID-19, its prediction, symptom analysis in various bodies, academic years across institutes, and their preventive measures in the spirit of continuing studies for students in countries such as the United States, the United Kingdom, and European countries that experience a large number of international students every six months.
+There have been numerous studies on the effects of COVID-19, its prediction, symptom analysis in various bodies, academic years across institutes, and their preventive measures in the spirit of continuing studies for students in countries such as the United States, the United Kingdom, and European countries that experience a large number of international students every six months.[@10.1371/journal.pone.0245327]
 
 Yusen Zhai, Xue Du, 2020 research [@article] is one of a few publications that has attempted to determine the impact of COVID-19 on the mental health of college students in the United States.
 
-COVID-19 will have ongoing critical repercussions on college students, according to the report, and "it is thus vital for universities to develop an awareness of students' mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis."
+COVID-19 will have ongoing critical repercussions on college students, according to the report, and "it is thus vital for universities to develop an awareness of students' mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis." [@10.1371/journal.pone.0236337]
 
 Our objective is to assist in the discovery of the consequences and worries that university students in Germany may have experienced and assist in the development of recommendations that can help shape the future after the debate.
 
@@ -175,61 +173,61 @@ df_data$results_better <- factor(df_data$results_better, level = c('No', 'Maybe'
 
 ```{r encode_variables,warning=FALSE, message=FALSE, echo=FALSE}
 
-df_data$living_setup_temp = factor(df_data$living_setup,
-levels = c('In dorm room','WG / Shared apartment','With Family'),
-labels = c(1,2,0))
-
-df_data$motivation_temp = factor(df_data$motivation,
-levels = c('Yes','Maybe','No'),
-labels = c(0,2,1))
-
-df_data$concentration_temp = factor(df_data$concentration,
-levels = c('Good','Same','Bad'),
-labels = c(0,2,1))
-
-df_data$sleep_temp = factor(df_data$sleep,
-levels = c('No','Yes'),
-labels = c(0,1))
-
-df_data$education_strain_temp = factor(df_data$education_strain,
-levels = c(5,4,3,2,1),
-labels = c(4,3,2,1,0))
-
-df_data$graduation_effect_temp = factor(df_data$graduation_effect,
-levels = c('No','Yes'),
-labels = c(0,1))
-
-df_data$feeling_unhappiniess_temp = factor(df_data$feeling_unhappiniess,
-levels = c(5,4,3,2,1),
-labels = c(0,1,2,3,4))
-
-df_data$insititute_assistance_temp = factor(df_data$insititute_assistance,
-levels = c(1,2,3,4,5),
-labels = c(4,3,2,1,0))
-
-df_data$internet_temp = factor(df_data$internet,
-levels = c('No','Maybe','Yes'),
-labels = c(0,2,1))
-
-df_data$job_lost_temp = factor(df_data$job_lost,
-levels = c('No','Yes'),
-labels = c(0,1))
-
-df_data$full_courses_taken_temp = factor(df_data$full_courses_taken,
-levels = c('Yes','No'),
-labels = c(0,1))
-
-df_data$stranded_outside_temp = factor(df_data$stranded_outside,
-levels = c('No','Yes'),
-labels = c(0,1))
-
-df_data$financial_problem_temp = factor(df_data$financial_problem,
-levels = c('Yes','Maybe', 'No'),
-labels = c(0,2,1))
-
-df_data$results_better_temp = factor(df_data$results_better,
-levels = c('Yes','Maybe', 'No'),
-labels = c(0,2,1))
+# df_data$living_setup_temp = factor(df_data$living_setup,
+# levels = c('In dorm room','WG / Shared apartment','With Family'),
+# labels = c(1,2,0))
+# 
+# df_data$motivation_temp = factor(df_data$motivation,
+# levels = c('Yes','Maybe','No'),
+# labels = c(0,2,1))
+# 
+# df_data$concentration_temp = factor(df_data$concentration,
+# levels = c('Good','Same','Bad'),
+# labels = c(0,2,1))
+# 
+# df_data$sleep_temp = factor(df_data$sleep,
+# levels = c('No','Yes'),
+# labels = c(0,1))
+# 
+# df_data$education_strain_temp = factor(df_data$education_strain,
+# levels = c(5,4,3,2,1),
+# labels = c(4,3,2,1,0))
+# 
+# df_data$graduation_effect_temp = factor(df_data$graduation_effect,
+# levels = c('No','Yes'),
+# labels = c(0,1))
+# 
+# df_data$feeling_unhappiniess_temp = factor(df_data$feeling_unhappiniess,
+# levels = c(5,4,3,2,1),
+# labels = c(0,1,2,3,4))
+# 
+# df_data$insititute_assistance_temp = factor(df_data$insititute_assistance,
+# levels = c(1,2,3,4,5),
+# labels = c(4,3,2,1,0))
+# 
+# df_data$internet_temp = factor(df_data$internet,
+# levels = c('No','Maybe','Yes'),
+# labels = c(0,2,1))
+# 
+# df_data$job_lost_temp = factor(df_data$job_lost,
+# levels = c('No','Yes'),
+# labels = c(0,1))
+# 
+# df_data$full_courses_taken_temp = factor(df_data$full_courses_taken,
+# levels = c('Yes','No'),
+# labels = c(0,1))
+# 
+# df_data$stranded_outside_temp = factor(df_data$stranded_outside,
+# levels = c('No','Yes'),
+# labels = c(0,1))
+# 
+# df_data$financial_problem_temp = factor(df_data$financial_problem,
+# levels = c('Yes','Maybe', 'No'),
+# labels = c(0,2,1))
+# 
+# df_data$results_better_temp = factor(df_data$results_better,
+# levels = c('Yes','Maybe', 'No'),
+# labels = c(0,2,1))
 
 
 # For inline R code in next section
@@ -974,7 +972,11 @@ To create a training and testing data set, first shuffle the data and divide it 
 
 We run the summary of the model and look at it's interpration:
 
+Keeping All other variables constant, the increase in one unit, meaning from Maybe to Yes will have a decrease of 13.02 units relative to result being bad. Similarily keeping all other variables constant, with relative to result being bad. The increase in one unit of Yes has a decrease in 17.9 units.
 
+Keeping all variables in the model constant, relative to grade being bad. A unit increase from Maybe to Yes has a decrease in 34.1 units. Wherase one unit increase from Yes to No has an increase in 30 units.
+
+Perhaps the most significant variable is study in germany factor. If we keep all the variables constant in the model, relative to result being bad, one unit from Yes to No has a decrease of 17.23 units. Whereas an increase in one unit from Maybe to Yes has an increase of 7.5 units.
 
 
 **Accuracy, Kappa & Missclassification**
@@ -1221,6 +1223,14 @@ For future studies, we can incorporate further questions such as analysing in te
 
 We started the basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stopword removal. We found answers to our research questions by performing a sentiment analysis on text data. We also tried to find a correlation between different variables. These were integral to find out whether each variable contributes to the other or not. We also ran ML models such as Logistic Regression to predict grades of Masters students. The most essential struggle for us was not having enough data. We highly emphasize future work where we can have a higher number of survey respondents - ideally more than 100, so we could have better training and test data split and offer more promising results of the study.
 
+
+# **Screencast & Website**
+
+[**_Project Screencast_**](https://www.youtube.com/watch?v=wetSjJo5qoo)
+
+
+
+[**_Project Website_**](https://sidraaaziz.wixsite.com/projectpandemic)
 
 # **Questionnaire**
 
