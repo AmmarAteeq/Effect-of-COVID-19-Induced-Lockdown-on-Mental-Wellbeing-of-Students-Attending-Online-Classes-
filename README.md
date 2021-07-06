@@ -8,3 +8,8 @@ As well as the Google Survey form we aim to conduct survey with and gather data 
 https://docs.google.com/forms/d/1iVyj8rxLUdoJLlmdf9S0So3_HSKjNUd31Zn_Pv5r2Pk/edit?ts=60a568a4
 
 ###
+Please do not forget to download below files in your system folder where .rmd is running:
+1. ieee.csl
+2. citation.bibliography
+3. Survey and Survey Questions excel sheets 
+4. covid19.jfif
