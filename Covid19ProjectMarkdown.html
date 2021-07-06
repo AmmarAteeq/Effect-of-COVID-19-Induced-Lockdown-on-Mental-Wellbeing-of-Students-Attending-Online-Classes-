@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Covid19ProjectMarkdown.utf8</title>
+
+<script src="Covid19ProjectMarkdown_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Covid19ProjectMarkdown_files/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="Covid19ProjectMarkdown_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Covid19ProjectMarkdown_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Covid19ProjectMarkdown_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="Covid19ProjectMarkdown_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="Covid19ProjectMarkdown_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="Covid19ProjectMarkdown_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="Covid19ProjectMarkdown_files/navigation-1.1/tabsets.js"></script>
+<link href="Covid19ProjectMarkdown_files/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="Covid19ProjectMarkdown_files/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="Covid19ProjectMarkdown_files/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="Covid19ProjectMarkdown_files/plotly-binding-4.9.3/plotly.js"></script>
+<script src="Covid19ProjectMarkdown_files/typedarray-0.1/typedarray.min.js"></script>
+<link href="Covid19ProjectMarkdown_files/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="Covid19ProjectMarkdown_files/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="Covid19ProjectMarkdown_files/plotly-htmlwidgets-css-1.57.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="Covid19ProjectMarkdown_files/plotly-main-1.57.1/plotly-latest.min.js"></script>
+<script src="Covid19ProjectMarkdown_files/kePrint-0.0.1/kePrint.js"></script>
+<link href="Covid19ProjectMarkdown_files/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore"><p><embed src="covid19.jfif" style="display: block; margin:0 auto" width="550" /></p></h1>
+
+</div>
+
+
+<div id="effect-of-covid-19-induced-lockdown-on-mental-wellbeing-of-students-attending-online-classes" class="section level1 unnumbered">
+<h1><strong>Effect of COVID-19 Induced Lockdown on Mental Wellbeing of Students Attending Online Classes </strong></h1>
+<p><strong>By:</strong></p>
+<ul>
+<li>Ammar Ateeq</li>
+<li>Muhammad Hashim Naveed</li>
+<li>Sidra Aziz</li>
+</ul>
+</div>
+<div id="related-works" class="section level1">
+<h1><span class="header-section-number">1</span> <strong>Related Works</strong></h1>
+<p>COVID-19 has had negative consequences on the planet for more than a year, ranging from economic downturns to high mortality tolls that have brought several nations and areas to their knees. We are currently witnessing its catastrophic impacts in the shape of second and third waves, claiming a large number of human lives every day in places like India.</p>
+<p>There have been numerous studies on the effects of COVID-19, its prediction, symptom analysis in various bodies, academic years across institutes, and their preventive measures in the spirit of continuing studies for students in countries such as the United States, the United Kingdom, and European countries that experience a large number of international students every six months.</p>
+<p>Yusen Zhai, Xue Du, 2020 research <span class="citation">[1]</span> is one of a few publications that has attempted to determine the impact of COVID-19 on the mental health of college students in the United States.</p>
+<p>COVID-19 will have ongoing critical repercussions on college students, according to the report, and “it is thus vital for universities to develop an awareness of students’ mental health needs and concerns, and to empower their students to seek aid and support throughout this biological crisis.”</p>
+<p>Our objective is to assist in the discovery of the consequences and worries that university students in Germany may have experienced and assist in the development of recommendations that can help shape the future after the debate.</p>
+</div>
+<div id="motivation-overview" class="section level1">
+<h1><span class="header-section-number">2</span> <strong>Motivation &amp; Overview</strong></h1>
+<p><strong>Objective 1:</strong> The study’s primary objective is to find out a relation between the COVID-19 Lockdown effect on the mental health of students who have been taking online semesters, mainly in the Summer and Winter semesters of 2020/2021. When we talk about correlation, we mean to find out whether there was a pattern for students to struggle with online study schedules. This correlation is the potential behind what students have gone through during the year of confinement to dorms or shared home spaces, and whether good or bad, the effect could be found on their mental health as a result.</p>
+<p>The aspects that should help us find this correlation should be the factors such as semester of the student, demographics such as whether they were stranded in their home country or staying in the dorm room, the communication process of steps to attending online classes by the institute, their internet connection as well their grade score quality. Furthermore, we would like to accommodate a subset of the GHQ-12 questionnaire where we ask the students questions about their concentration span, the capability of making decisions, feeling of unhappiness or depression, sleep deprivation, constant feeling of stress, and the financial situation of the students during this period, etc.</p>
+<p><strong>Objective 2:</strong> The second objective of the study is to perform and visualize a sentiment analysis using text data gathered using the survey and help find out students’ sentiments throughout their online study period that they express. For example, sentiment polarity scores from negative, neutral to positive, happiness, fear or trust, etc.</p>
+<p><strong>Objective 3:</strong> Our third objective aims to predict the grades of the students who are confined in similar demographic situations and share somewhat identical sentiments. This study will not indicate any student’s depression but only trying to understand whether there are adverse effects on students who have gone ahead for a year with little to no social interaction. At the same time had to go through a strenuous schedule of studies and/or part-time jobs.</p>
+<p><strong>Questionnaire:</strong> <a href="https://docs.google.com/forms/d/1iVyj8rxLUdoJLlmdf9S0So3_HSKjNUd31Zn_Pv5r2Pk/edit"><strong><em>A Short Survey About Online Studies And Its Effects</em></strong></a></p>
+</div>
+<div id="data" class="section level1">
+<h1><span class="header-section-number">3</span> <strong>Data</strong></h1>
+<div id="data-cleaning-manipulation" class="section level2">
+<h2><span class="header-section-number">3.1</span> <strong>Data Cleaning &amp; Manipulation</strong></h2>
+<p>Data cleaning wasn’t as big an issue for such a dataset. Given the fact that the answers were fixed options and required, there were no NAs. Except in the questions which required reasoning. It made no sense to remove those rows as we would be losing out on a lot of information if we pulled all NAs for those types of questions.</p>
+<p>Furthermore, all the categorical answers were converted to factor variable with consistent levels (No-Maybe-Yes).</p>
+</div>
+<div id="overview" class="section level2">
+<h2><span class="header-section-number">3.2</span> <strong>Overview</strong></h2>
+<p>This section will give a breif overview of the demographics of the students who filled out the questionnaire. A total of 58 students filled out the form. The graphs will illustrate what nationalities the students are of and the age range. The focus will shift towards the explanatory analysis of the data.</p>
+<p>A total of 29 questions were asked in the questionnaire. The format of the options for the questions were ordinal or categorical.</p>
+<p>The pie chart below shows that 45 out of the 58 students are studying in Germany. Exactly half of the students are in the age range of 26 to 30. Almost 40% are 21 to 25 years of age. The rest are either below 20 or above 30.</p>
+<p><div id="htmlwidget-a5325602eef3965435bb" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a5325602eef3965435bb">{"x":{"visdat":{"4fac2c574d74":["function () ","plotlyVisDat"]},"cur_data":"4fac2c574d74","attrs":{"4fac2c574d74":{"labels":{},"values":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"pie"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Pie Chart of Students Studying in Germany","xaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"yaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"labels":["Studying in Germany","Studying outside Germany"],"values":[45,13],"type":"pie","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(255,255,255,1)"}},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script><div id="htmlwidget-b7aca3de6c0647b8d5cf" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b7aca3de6c0647b8d5cf">{"x":{"visdat":{"4fac77c357cb":["function () ","plotlyVisDat"]},"cur_data":"4fac77c357cb","attrs":{"4fac77c357cb":{"labels":{},"values":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"pie","hole":0.6,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Age Range Distribution","showlegend":true,"legend":{"title":{"text":"<b> Age Range <\/b>"}},"xaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"yaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"hovermode":"closest"},"source":"A","config":{"showSendToCloud":false},"data":[{"labels":["26-30","21-25","16-20","30+"],"values":[29,22,5,2],"type":"pie","hole":0.6,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(255,255,255,1)"}},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script></p>
+</div>
+<div id="world-map-of-students-nationalities" class="section level2">
+<h2><span class="header-section-number">3.3</span> <strong>World Map of Students Nationalities</strong></h2>
+<p>Most of the students are from the subcontinent region mainly Pakistan &amp; India. <img src="Covid19ProjectMarkdown_files/figure-html/worldmap-1.png" width="1152" /></p>
+<!-- ```{r worldmap_plot, echo=FALSE, fig.width= 12, include=FALSE} -->
+<!-- renderPlot(world_plot) -->
+<!-- ``` -->
+</div>
+</div>
+<div id="exploratory-analysis" class="section level1">
+<h1><span class="header-section-number">4</span> <strong>Exploratory Analysis</strong></h1>
+<p>This section will look into the basic distribution of data amongst the different variables. This will show a glimpse of the answers of the students in terms of the selected variables.</p>
+<p><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-1.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-2.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-3.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-4.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-5.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-6.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-7.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-8.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-9.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-10.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/frequency_plot-11.png" width="672" /></p>
+<div id="correlations-between-variables" class="section level2">
+<h2><span class="header-section-number">4.1</span> <strong>Correlations Between Variables</strong></h2>
+<p>This section will correlate two variables. This will give a better insight how some factors have an effect on the other. Analysis show that when the concentration and the motivation of the student have been bad, the grades of the student have been bad as well. Which is an obvious statement, but it is still important to know this fact as it also gives an indication of the validity of the answers of the students.</p>
+<p>Analysis show that students who are living in shared apartments have been the most unhappy during online studies. We initially predicted the single apartment students to be unhappy because of lonliness. This does not mean it is soley because of this reason, but it is a major factor.</p>
+<p>Losing job also leads to unhappiness which can be seen in figure 15.</p>
+<p><img src="Covid19ProjectMarkdown_files/figure-html/correlation_plots-1.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/correlation_plots-2.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/correlation_plots-3.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/correlation_plots-4.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/correlation_plots-5.png" width="960" /></p>
+</div>
+<div id="germany-specific" class="section level2">
+<h2><span class="header-section-number">4.2</span> <strong>Germany Specific</strong></h2>
+<p>It seems rather logical to look a little deeper into just the students studying in Germany. Upon analysis, it was found that none of the students studying in Germany are living with their families.</p>
+<p>Out of 45 students who study in Germany, 22 have said their results have gotten worse and 13 say ‘maybe’. That is very high percentage of people compared to the people not living in Germany.</p>
+<p>None of the students outside Germany lost their jobs during the pandemic, whereas out of 45 people, 14 people lost their jobs.</p>
+<p>71.11% of students studying in Germany show high levels of unhappiness or anxiety. Compared to 38.46% of students studying outside.</p>
+<p>Almost 68.89% of students studying in Germany faced a delay in their study schedule compared to only 23.08% for students studying outside.</p>
+<p>The students outside of Germany faced internet problems much more than the students in Germany. The reason for it can be down to the fact that most of the students are from the subcontinent region where it is not so uncommon to have electricity or internet issues.</p>
+<p>Students in Germany faced financial problems much more than the students outside Germany. It would be interesting to see for future analysis the semester number of the students. New international students must submit a minimum amount in their banks, which is sufficient for one year. Therefore, it is just a prediction that most of these students facing financial problems are semester two onwards or have been in Germany for more than a year.</p>
+<p>Concentration levels have also been harmful during the online studies for German students.</p>
+<p>While this analysis does not seal that students in Germany have faced many anxiety-stricken online studies, it indeed points in that direction. It would be more conclusive with an equal number of students from within and outside Germany. Only then can it be said with much more conviction.</p>
+<p><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-1.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-2.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-3.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-4.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-5.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-6.png" width="960" /><img src="Covid19ProjectMarkdown_files/figure-html/germany_specific-7.png" width="960" /></p>
+</div>
+</div>
+<div id="data-modeling" class="section level1">
+<h1><span class="header-section-number">5</span> <strong>Data Modeling</strong></h1>
+<div id="random-forrest" class="section level2">
+<h2><span class="header-section-number">5.1</span> <strong>Random Forrest</strong></h2>
+<p>The function train() from Caret Package used for model buidling. Several functions from other R Packages are also used pre-processing, data wrangling and visualziations. It includes Tunning algorithm which helps us get better results and give is the freedom to tune more parameters in a better fashion. We tried to balance two main paramters i.e. mtry and ntree. mtry: Number of variable is randomly collected to be sampled at each split time and ntree: Number of branches will grow after each time split.</p>
+<p>We trained 3 different model in get the best information out of the data. Following are the data modeling formulae:</p>
+<p><strong>Model 1:</strong> Was the student able to concerntrate on studies (concentration) as the dependent variable. Independent variables are: How much strain does a student have (education_strain), which country is the student studying in (country_study), is the student getting enough sleep (sleep), the delay of the students graduation (graduation_effect), internet problems (internet), did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside) and were there any financial problems (financial_problem).</p>
+<pre><code>              train(concentration ~ education_strain + country_study + sleep + graduation_effect +
+              internet + job_lost + stranded_outside + financial_problem
+            , data=so_training,  method= rf)</code></pre>
+<p><strong>Model 2:</strong> Did the result get better (results_better) as the dependent variable. Independent variables are: How much strain does a student have (education_strain), is the student getting enough sleep (sleep), he delay of the students graduation (graduation_effect), did the student lost job due to covid-19 (job_lost), was the student stranded outside germany (stranded_outside), internet problems (internet) and were there any financial problems (financial_problem).</p>
+<pre><code>              train( results_better ~ 
+                education_strain  + sleep + graduation_effect +
+                internet + job_lost + stranded_outside + financial_problem
+              , data=so_training, method=rf)
+              
+              </code></pre>
+<p><strong>Model 3:</strong> How motivated does the student feel (motivation) as the dependent variable. Independent variables are: How unhappy does the student feel (feeling_unhappiniess), is the student getting enough sleep (sleep), he delay of the students graduation (graduation_effect), was the student stranded outside germany (stranded_outside), internet problems (internet) and did the student lost job due to covid-19 (job_lost).</p>
+<pre><code>              train(motivation ~ feeling_unhappiniess + sleep + graduation_effect + stranded_outside + internet + job_lost
+             , data=so_training, method= rf)
+             </code></pre>
+<p>We compare two major aspects; 1. Training and Testing accuracies for each model. 2. Training accuracies with Kappa values for each model.</p>
+<p><strong>THE GRAPHS:</strong></p>
+<p>The first scatter plot shows the camparison between the three models. Making Model 1 (Concerntration) to be the best modelled Independent variable, having explanation of just over 70% training accuracy and just under 45% of testing accuracy. The remaining two model are having different interpretation as the first one.</p>
+<p>The second scatter plot agaib shows the camparison between the three models, but this time it is Training Accuracies with Kappa Values. Model 1 (Concerntration) having describing more relevancy with Kappa value greater than 36%.</p>
+<p><img src="Covid19ProjectMarkdown_files/figure-html/random_forrest_model-1.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/random_forrest_model-2.png" width="672" /></p>
+</div>
+<div id="multinomial-logistic-regression" class="section level2">
+<h2><span class="header-section-number">5.2</span> <strong>Multinomial Logistic Regression</strong></h2>
+<p>Since the target variable was categorical with 3 levels (‘Yes’ ‘No’ ‘Maybe’). Even though the choice for Logistic regression model was obvious, it was tricky to do it for 3 levels. This is where multinomial logistic regression comes into play. It considers more than 2 levels for the outcome variable as opposed to the standard glm funcion which is used for binomial variable type.</p>
+<p>We looked into the method of encoding our variable into ‘0’ ‘1’ ‘2’ , but given the fact that 2 of the variables specifically ‘education_strain’ &amp; ‘feeling_unhappiness’ had 5 levels. The encoding didn’t make sense with unequal levels. So we proceeded with the factor variables.</p>
+<p>The multinom function from the nnet package will be used to estimate a multinomial logistic regression model. Functions from other R packages can also be used to perform multinomial regression. We chose the multinom function since it does not require data reshaping (as the mlogit package does) and it closely mirrors Hilbe’s Logistic Regression Models sample code. Multinomial logistic regression is a straightforward extension of binary logistic regression that allows for the inclusion of more than two categories of the dependent or outcome variable. Our model is run using <strong>Multinom</strong>.</p>
+<p><em>model &lt;- multinom( results_better ~ study_in_germany + graduation_effect + job_lost , data = dfModelTest)</em></p>
+<p>The predictors for the model will be students studying in and out of Germany (study_in_germany), the delay of the students graduation (graduation_effect) &amp; if the students lost their jobs or not (job_lost). The response variable will be (results_better) which signifies if the students results got better or worse during online studies.</p>
+<p>To create a training and testing data set, first shuffle the data and divide it into two equal data frames. We use <strong>caret’s</strong> <em>varImp</em> to check the most influential variables once the model has converged. Then, on the testing data set, we use the predict function to predict results. There are two methods for calculating predictions: ‘class’ and ‘probs.’</p>
+<p>We run the summary of the model and look at it’s interpration:</p>
+<p><strong>Accuracy, Kappa &amp; Missclassification</strong></p>
+<p>We use the postResample function from caret to assess the model’s accuracy It employs the mean squared error and R-squared for numeric vectors and the overall agreement rate and Kappa for factors. round(x, digits = 0)</p>
+<p><strong>Accuracy &amp; Kappa:</strong> 0.87, 0.72</p>
+<p><strong>The misclassification rate is:</strong> 0.13</p>
+<table class=" lightable-classic" style="font-family: Cambria; margin-left: auto; margin-right: auto;">
+<caption>
+Confusion Matrix for Predicted &amp; Actual Classification
+</caption>
+<thead>
+<tr>
+<th style="empty-cells: hide;" colspan="1">
+</th>
+<th style="padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #111111; margin-bottom: -1px; ">
+Actual
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+No
+</th>
+<th style="text-align:right;">
+Maybe
+</th>
+<th style="text-align:right;">
+Yes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maybe
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+</tbody>
+</table>
+<table class=" lightable-classic" style="font-family: Cambria; margin-left: auto; margin-right: auto;">
+<caption>
+Confusion Matrix for Predicted &amp; Actual Classification (In percentage)
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+No
+</th>
+<th style="text-align:right;">
+Maybe
+</th>
+<th style="text-align:right;">
+Yes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maybe
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+75
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multinomial Logistic Model Plot</strong></p>
+<p>The graph shows the prediction probabily that the person would get bad result with the actual classification specified by the 3 different colors. It shows that the probability gets better when there are actual bad results, the model predicts those instances with a much higher accuracy. The biggest constraint is the lack of data, with higher sample size, the prediction will be a lot better. With higher sample size, cross validation can be used which would make the model more accurate.</p>
+<p><img src="Covid19ProjectMarkdown_files/figure-html/logistic_model_plot-1.png" width="672" /></p>
+</div>
+</div>
+<div id="sentiment-analysis" class="section level1">
+<h1><span class="header-section-number">6</span> <strong>Sentiment Analysis</strong></h1>
+<p>We have aimed at using text mining techniques using libraries and packages offered by R. From tm to tidyverse, tidytext, glue, wordcloud, dplyr we exploit all of this to understand sentiments behind textual data. Furthermore, study also aims to perform and visualise a sentiment analysis using text data that is gathered using the survey and help find out sentiments of students throughout their online study period that they express. For example sentiment polarity scores from negative, neutral to positive and feeling of unhappiness, or fear or trust etc.</p>
+<!-- ## **Word Cloud** -->
+<!-- ```{r wordcloud,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE} -->
+<!-- word_count_func <- function(column_name) { -->
+<!--   corpus = Corpus(VectorSource(df_data[column_name])) -->
+<!--   corpus = tm_map(corpus, content_transformer(tolower)) -->
+<!--   corpus = tm_map(corpus, removeNumbers) -->
+<!--   corpus = tm_map(corpus, removeWords, stopwords("english")) -->
+<!--   corpus = tm_map(corpus, removePunctuation) -->
+<!--   corpus = tm_map(corpus, stripWhitespace) -->
+<!--   tdm = TermDocumentMatrix(corpus) -->
+<!--   m = as.matrix(tdm) -->
+<!--   v = sort(rowSums(m), decreasing = TRUE) -->
+<!--   d = data.frame(word = names(v),freq = v) -->
+<!--   wordcloud(d$word, d$freq, random.order = FALSE, -->
+<!--             rot.per = 0.3, scale = c(4,.5), -->
+<!--             colors = brewer.pal(8,"Dark2"),main=column_name, max.words = 200, min.freq = 2) -->
+<!--   findFreqTerms(tdm, lowfreq = 2) -->
+<!--   barplot(d[1:10,]$freq, las = 2, names.arg = d[1:10,]$word, -->
+<!--           col ="pink", main ="Most frequent words", -->
+<!--           ylab = "Word frequencies") -->
+<!--   findAssocs(tdm, terms = c("online","classes","different"), corlimit = 0.10)           -->
+<!--   # Find associations for words that occur at least 3 times -->
+<!--   #findAssocs(tdm, terms = findFreqTerms(tdm, lowfreq = 3), corlimit = 0.25) -->
+<!-- } -->
+<!-- fluidRow( -->
+<!--    column(6, -->
+<!-- selectInput( -->
+<!--   inputId = 'PlotColumn', -->
+<!--   label = 'Select a variable from the dataset', -->
+<!--   choices = c('motivation_reason','concentration_reason', 'sleep_reason','graduation_effect_reason','feeling_unhappiness_reason','internet_reason','full_courses_taken_reason', 'stranded_outside_cope','financial_problem_affect','additional_notes') -->
+<!-- ) -->
+<!-- ) -->
+<!-- ) -->
+<!-- ``` -->
+<!-- ```{r wordcloud_plot,warning=FALSE, message=FALSE, echo=FALSE, include=FALSE} -->
+<!-- renderPlot(word_count_func(input$PlotColumn)) -->
+<!-- ``` -->
+<p><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-1.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-2.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-3.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-4.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-5.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-6.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-7.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-8.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-9.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-10.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-11.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-12.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-13.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-14.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-15.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-16.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-17.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-18.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-19.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-20.png" width="672" /><img src="Covid19ProjectMarkdown_files/figure-html/sentiment_analysis-21.png" width="672" /></p>
+<p>The sentiment analysis show that most of the words used throughout the questions had negative inclination. Only two columns (‘motivation_reason’, ‘addional_notes’) had an overall positive sentiment.</p>
+</div>
+<div id="final-analysis" class="section level1">
+<h1><span class="header-section-number">7</span> <strong>Final Analysis</strong></h1>
+<p><strong>What did you learn about the data?</strong></p>
+<p>We curated the survey questions based on our own experiences of being a student that has seen a shift of academic and professional ecosystem in the last 1.5 years. This inspired the study, and therefore we wanted to understand what the students have been feeling during this time, the significant concerns they have, what affected their study? Did they get better results? etc. The data was not only open-text questions but also likert scale method of scoring and categorical data etc. We understood the demographics of survey respondents, their age, location, etc.</p>
+<p>For future studies, we can incorporate further questions such as analysing in terms of their semesters, whether they or their loved ones were diagnosed with the Covid-19 or not.</p>
+<p><strong>How did you answer the questions?</strong></p>
+<p>We started the basic pre-processing steps of cleaning the data, removing NAs, converting text data to lower case, and also stopword removal. We found answers to our research questions by performing a sentiment analysis on text data. We also tried to find a correlation between different variables. These were integral to find out whether each variable contributes to the other or not. We also ran ML models such as Logistic Regression to predict grades of Masters students. The most essential struggle for us was not having enough data. We highly emphasize future work where we can have a higher number of survey respondents - ideally more than 100, so we could have better training and test data split and offer more promising results of the study.</p>
+</div>
+<div id="questionnaire" class="section level1">
+<h1><span class="header-section-number">8</span> <strong>Questionnaire</strong></h1>
+<p>The following are the list of questions used in our survery:</p>
+<table class="table table-striped" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Timestamp
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+What is your age?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Which country are you from?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Do you study in Germany?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Which country were you in while taking online classes?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+What is your living setup?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Were you motivated to take online classes as compared to regular classes?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Please give reason for your previous question’s answer below:
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+How has been your concentration span during online studies vs. in-person classes/lectures?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Please share some thoughts or explanation on the concentration span in online studies.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Has your sleep been affected during online classes?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Please share some thoughts on how has your sleep been affected during online classes if you marked previous question as ‘yes’:
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+From 1 being lowest and 5 the highest, how much are you in constant strain around the time of assignment submissions, projects, exams or classes in online setting?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Did the online class setting effect your graduation timeline or plans?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+If your answer is ‘yes’ to previous question, would you like to take a few seconds and describe to us how has it impacted your graduation timeline or future plans?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+From scale of 1 to 5 where 1 being the lowest and 5 being the highest, how much has the feeling of unhappiness or anxiety been felt by you during your online classes in COVID-19 situation?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Would you like to share your thoughts on what has been the cause of anxiety or worry during this time for you?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+How was the assistance from your Institute during COVID-19 when it comes to getting comfortable in online-class decorum? 1 being ‘least assistive’ to 5 being ‘most assistive’.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Has the internet connection affected you during online classes or online exams?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+If you answered ‘yes’ to previous question, can you please share thoughts on what kind of effects have you experienced due to poor internet connection?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Did you lose your job due to Covid-19 pendemic?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Were you able to take all the courses that you wanted?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+If your answer is ‘no’ to previous question, what were your immediate thoughts when you were unable to take all the courses in due time?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Were you stranded outside your country of education?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+If your answer is ‘yes’ to previous question, how did you cope with online studies at that time?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Did you have financial problem due to COVID-19?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+If your answer is ‘yes’ to the question above, how do you think it affected your studies?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Did you get better results in online-exam setting where you could take the exam in premise of your own home?
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Please share any thoughts in addition that you feel were not addressed in above questions.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1><strong>References</strong></h1>
+<div id="refs" class="references">
+<div id="ref-article">
+<p>[1] Y. Zhai and X. Du, “Mental health care for international chinese students affected by the covid-19 outbreak,” <em>The Lancet Psychiatry</em>, vol. 7, p. e22, Apr. 2020, doi: <a href="https://doi.org/10.1016/S2215-0366(20)30089-4">10.1016/S2215-0366(20)30089-4</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
