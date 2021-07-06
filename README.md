@@ -16,4 +16,8 @@ Please do not forget to download below files in your system folder where .rmd is
 
 Our study's website is on the url -> https://sidraaaziz.wixsite.com/projectpandemic
 
+
+NOTE: When you open questionnaire or website link or screencast video etc then please open with Right click and open in new tab/browser.
+
+
 Thank you.
